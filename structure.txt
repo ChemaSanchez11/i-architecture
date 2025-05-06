@@ -1,0 +1,33 @@
+/i-architecture/
+│
+├── index.php
+├── config.php
+├── Router.php
+│
+├── /libs/
+│
+├── /core/                         # Clases esenciales del sistema
+│   ├── DB.php                     # Gestor de base de datos
+│   ├── Auth.php                   # (opcional) Clase de autenticación
+│   └── View.php                   # (opcional) Renderizador de vistas
+│
+├── /helpers/                      # Funciones globales y utilidades
+│   └── utils.php                  # Funciones sueltas (sanitize, format_date, etc.)
+│
+├── /controllers/
+│   ├── HomeController.php
+│   └── FileController.php
+│
+├── /templates/
+│   └── home.mustache
+│
+├── /assets/
+│   ├── /css/
+│   ├── /js/
+│   └── /images/
+│
+├── /storage/
+│   └── /cache/
+│       └── env.php
+│
+└── .htaccess
