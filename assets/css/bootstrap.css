@@ -13446,4 +13446,10 @@ textarea.form-control-lg {
     z-index: 1;
 }
 
-/*# sourceMappingURL=bootstrap.min.css.map */
+#navbar-logo:hover .logo-normal {
+    display: none;
+}
+
+#navbar-logo:hover .logo-hover {
+    display: block !important;
+}
