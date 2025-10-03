@@ -53,6 +53,24 @@ class Renderer
             'loader' => new Mustache_Loader_FilesystemLoader(__DIR__ . '/../templates'),
             'partials_loader' => new Mustache_Loader_FilesystemLoader(__DIR__ . '/../templates')
         ]);
+
+        // Detecta automáticamente la URL base
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'];
+        $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+        $baseurl = $protocol . "://" . $host . $path;
+
+        // Añadimos un helper "img"
+        $this->mustache->addHelper('img', function($text, $render) use ($baseurl) {
+            $filename = trim($render($text));
+            return $baseurl . '/assets/images/' . $filename;
+        });
+
+        // Añadimos un helper "video"
+        $this->mustache->addHelper('video', function($text, $render) use ($baseurl) {
+            $filename = trim($render($text));
+            return $baseurl . '/assets/videos/' . $filename;
+        });
     }
 
     public function render_head(): void

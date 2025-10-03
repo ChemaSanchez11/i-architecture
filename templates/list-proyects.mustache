@@ -1,0 +1,55 @@
+<div style="margin-top: 8px; overflow: hidden; ">
+    <div class="masonry">
+        <div class="item">
+            <img src="{{#img}}proyects/proyect1.png{{/img}}" alt="">
+        </div>
+        <div class="item">
+            <img src="{{#img}}proyects/proyect4.png{{/img}}" alt="">
+        </div>
+        <div class="item">
+            <img src="{{#img}}proyects/proyect2.png{{/img}}" alt="">
+        </div>
+        <div class="item">
+            <video autoplay muted loop playsinline>
+                <source src="{{#img}}proyects/proyect3.mp4{{/img}}" type="video/mp4">
+                Tu navegador no soporta video en HTML5.
+            </video>
+        </div>
+    </div>
+</div>
+
+<style>
+    .masonry {
+        column-count: 2;        /* número de columnas */
+        column-gap: 0;
+    }
+
+    .item {
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+        margin-bottom: -7px;
+    }
+
+    .item img,
+    .item video {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover; /* mantiene proporciones */
+        transition: filter 0.3s ease;
+        margin-top: -8px;
+    }
+
+    .item img:hover,
+    .item video:hover {
+        filter: brightness(46%) sepia(10%) saturate(200%);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .masonry {
+            column-count: 1;
+        }
+    }
+</style>

@@ -1,0 +1,22 @@
+<footer class="position-relative text-center text-white" style="height: 400px; overflow: hidden;">
+    <!-- Video de fondo -->
+    <video autoplay muted loop playsinline
+           class="position-absolute top-0 start-0 w-100 h-100"
+           style="object-fit: cover;">
+        <source src="{{#video}}video-footer.mp4{{/video}}" type="video/mp4">
+        Tu navegador no soporta video en HTML5.
+    </video>
+
+    <!-- Capa oscura -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.4);"></div>
+
+    <!-- Contenido -->
+    <div class="position-absolute top-50 start-50 translate-middle">
+        <img src="{{#img}}logo-white.png{{/img}}" alt="Logo" class="img-fluid mb-3" style="max-height: 80px;">
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+            <a href="#" class="text-white text-decoration-none">Condiciones generales de uso</a>
+            <a href="#" class="text-white text-decoration-none">Política de cookies</a>
+            <a href="#" class="text-white text-decoration-none">Política de privacidad</a>
+        </div>
+    </div>
+</footer>

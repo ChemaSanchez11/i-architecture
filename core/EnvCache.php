@@ -29,7 +29,9 @@ class EnvCache
      */
     public function load(): void
     {
-        if (!file_exists($this->cachePath) || filemtime($this->envPath) > filemtime($this->cachePath)) {
+        $file_exist = file_exists($this->cachePath);
+
+        if ($file_exist || filemtime($this->envPath) > filemtime($this->cachePath)) {
             $this->buildCache();
         }
 
