@@ -1,55 +1,92 @@
-<div style="margin-top: 8px; overflow: hidden; ">
-    <div class="masonry">
-        <div class="item">
+<div style="margin-top: 8px; overflow: hidden;">
+    <div class="grid">
+        <div class="grid-sizer"></div> <!-- columna de referencia -->
+        <div class="grid-item">
             <img src="{{#img}}proyects/proyect1.png{{/img}}" alt="">
         </div>
-        <div class="item">
-            <img src="{{#img}}proyects/proyect4.png{{/img}}" alt="">
-        </div>
-        <div class="item">
+        <div class="grid-item">
             <img src="{{#img}}proyects/proyect2.png{{/img}}" alt="">
         </div>
-        <div class="item">
+        <div class="grid-item">
             <video autoplay muted loop playsinline>
                 <source src="{{#img}}proyects/proyect3.mp4{{/img}}" type="video/mp4">
                 Tu navegador no soporta video en HTML5.
             </video>
         </div>
+        <div class="grid-item">
+            <img src="{{#img}}proyects/proyect4.png{{/img}}" alt="">
+        </div>
+        <div class="grid-item">
+            <img src="{{#img}}proyects/proyect5.png{{/img}}" alt="">
+        </div>
+        <div class="grid-item">
+            <video autoplay muted loop playsinline>
+                <source src="{{#img}}proyects/proyect6.mp4{{/img}}" type="video/mp4">
+                Tu navegador no soporta video en HTML5.
+            </video>
+        </div>
+        <div class="grid-item">
+            <video autoplay muted loop playsinline>
+                <source src="{{#img}}proyects/proyect7.mp4{{/img}}" type="video/mp4">
+                Tu navegador no soporta video en HTML5.
+            </video>
+        </div>
+        <div class="grid-item">
+            <img src="{{#img}}proyects/proyect8.png{{/img}}" alt="">
+        </div>
+        <div class="grid-item">
+            <img src="{{#img}}proyects/proyect9.png{{/img}}" alt="">
+        </div>
+        <div class="grid-item grid-item--full">
+            <video autoplay muted loop playsinline>
+                <source src="{{#img}}proyects/proyect10.mp4{{/img}}" type="video/mp4">
+                Tu navegador no soporta video en HTML5.
+            </video>
+        </div>
+        <div class="grid-item">
+            <img src="{{#img}}proyects/proyect11.png{{/img}}" alt="">
+        </div>
+        <div class="grid-item">
+            <img src="{{#img}}proyects/proyect12.png{{/img}}" alt="">
+        </div>
+        <div class="grid-item grid-item--full">
+            <img src="{{#img}}proyects/proyect13.png{{/img}}" alt="">
+        </div>
     </div>
 </div>
-
 <style>
-    .masonry {
-        column-count: 2;        /* número de columnas */
-        column-gap: 0;
+    .grid {
+        width: 100%;
+        position: relative; /* importante para Masonry */
     }
 
-    .item {
-        overflow: hidden;
-        display: inline-block;
-        width: 100%;
-        margin-bottom: -7px;
+    .grid-sizer {
+        width: 50%; /* define ancho de columna normal */
     }
 
-    .item img,
-    .item video {
+    .grid-item {
+        width: 50%; /* dos columnas */
+    }
+
+    .grid-item img,
+    .grid-item video {
         width: 100%;
-        height: auto;
         display: block;
-        object-fit: cover; /* mantiene proporciones */
+        object-fit: cover;
         transition: filter 0.3s ease;
-        margin-top: -8px;
     }
 
-    .item img:hover,
-    .item video:hover {
+    .grid-item img:hover,
+    .grid-item video:hover {
         filter: brightness(46%) sepia(10%) saturate(200%);
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .masonry {
-            column-count: 1;
-        }
+    /* Items full-width */
+    .grid-item--full {
+        width: 100%;
     }
+
+
 </style>
+
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
