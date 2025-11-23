@@ -1,0 +1,25 @@
+<section data-section="{{id}}" class="section two-images">
+    <div>
+        <div class="row">
+
+            <!-- Imagen izquierda -->
+            <div class="col-md-6 px-0">
+                {{#items}}
+                    {{#is_image_left}}
+                        <img src="{{#print_img}}{{media_url}}{{/print_img}}" class="img-fluid left-image" />
+                    {{/is_image_left}}
+                {{/items}}
+            </div>
+
+            <!-- Imagen derecha -->
+            <div class="col-md-6 px-0">
+                {{#items}}
+                    {{#is_image_right}}
+                        <img src="{{#print_img}}{{media_url}}{{/print_img}}" style="{{css}}" class="img-fluid right-image" />
+                    {{/is_image_right}}
+                {{/items}}
+            </div>
+
+        </div>
+    </div>
+</section>

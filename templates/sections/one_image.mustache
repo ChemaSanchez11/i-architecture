@@ -1,0 +1,13 @@
+<section data-section="{{id}}" class="section one-image">
+    <div class="container-fluid px-0">
+        <div style="{{s_css}}">
+            {{#items}}
+                {{#type}}
+                    {{#is_image}}
+                        <img src="{{#print_img}}{{media_url}}{{/print_img}}" class="img-fluid" style="{{css}}"/>
+                    {{/is_image}}
+                {{/type}}
+            {{/items}}
+        </div>
+    </div>
+</section>

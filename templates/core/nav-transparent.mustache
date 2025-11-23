@@ -1,0 +1,20 @@
+<nav class="navbar navbar-expand-lg bg-white">
+    <div class="container py-1">
+        <a id="navbar-logo" class="navbar-brand" href="{{#link}}/{{/link}}">
+            <img src="{{#print_img}}logo-white.png{{/print_img}}" style="width: 5rem;" alt="i-architecture" class="logo-normal">
+            <img src="{{#print_img}}logo-white-hover.png{{/print_img}}" style="width: 5rem; display: none;" alt="i-architecture" class="logo-hover">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {{#routes}}{{#visible}}
+                    <li class="nav-item">
+                        <a class="nav-link {{#current}}active{{/current}}" aria-current="page" href="{{#link}}{{route}}{{/link}}">{{name}}</a>
+                    </li>
+                {{/visible}}{{/routes}}
+            </ul>
+        </div>
+    </div>
+</nav>

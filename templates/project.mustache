@@ -1,0 +1,147 @@
+{{#project}}
+    <div id="container-gif-home" class="d-flex">
+        <video id="video-bg" class="w-100 h-100" autoplay muted loop playsinline>
+            <source src="{{#print_img}}{{header_source}}{{/print_img}}" type="video/mp4">
+            Tu navegador no soporta video en HTML5.
+        </video>
+
+        <div id="gif-text" class="gif-text" data-id="{{id}}">{{name}}</div>
+    </div>
+{{/project}}
+
+{{#sections}}
+    {{#layout_type}}
+        {{#is_text_left_image_right}}
+            {{> sections/text_left_image_right }}
+        {{/is_text_left_image_right}}
+        {{#is_two_images_left_large_right_small}}
+            {{> sections/two_images_left_large_right_small }}
+        {{/is_two_images_left_large_right_small}}
+        {{#is_one_image}}
+            {{> sections/one_image }}
+        {{/is_one_image}}
+        {{#is_two_images}}
+            {{> sections/two_images }}
+        {{/is_two_images}}
+        {{#is_image_left_text_right}}
+            {{> sections/image_left_text_right }}
+        {{/is_image_left_text_right}}
+    {{/layout_type}}
+{{/sections}}
+
+<!-- Botones flotantes -->
+<div id="section-menu" class="ui-widget-content ui-corner-all p-2 shadow-sm bg-white border rounded d-flex gap-1">
+    <button class="btn btn-light btn-sm" id="create-top" data-bs-toggle="modal" data-bs-target="#new-section-dialog">
+        <span class="iconify" data-icon="mdi:plus" data-width="16"></span> Arriba
+    </button>
+
+    <button class="btn btn-light btn-sm" id="create-bottom" data-bs-toggle="modal" data-bs-target="#new-section-dialog">
+        <span class="iconify" data-icon="mdi:plus" data-width="16"></span> Abajo
+    </button>
+
+    <button class="btn btn-secondary btn-sm" id="move-up">
+        <span class="iconify" data-icon="mdi:arrow-up" data-width="16"></span>
+    </button>
+
+    <button class="btn btn-secondary btn-sm" id="move-down">
+        <span class="iconify" data-icon="mdi:arrow-down" data-width="16"></span>
+    </button>
+</div>
+<div class="modal fade" id="new-section-dialog" tabindex="-1" aria-labelledby="new-section-dialogLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered" style="z-index: 9999">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="new-section-dialogLabel">Nueva sección</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="new-section-form">
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">
+                            <span class="iconify" data-icon="mdi:view-dashboard-outline"></span>
+                            Disposición
+                        </label>
+                        <select id="new-section-layout" name="layout" class="form-select custom-input">
+                            <option value="" disabled selected>Seleccionar..</option>
+                            <option value="text_left_image_right">Texto Izquierda | Imagen Derecha</option>
+                            <option value="two_images_left_large_right_small">Imagen Grande Izq | Imagen Pequeña Der</option>
+                            <option value="one_image">Una imagen</option>
+                            <option value="two_images">Dos imagenes</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="form-group row mb-3">
+                            <div id="container-mn-image-left" class="col-6 mb-3 container-mn-layout" style="display: none">
+                                <label for="mn-image-left" class="form-label">Imagen</label>
+                                <input class="form-control" type="file" id="mn-image-left" name="mn-image-left">
+                            </div>
+
+                            <div id="container-mn-image-right" class="col-6 mb-3 container-mn-layout" style="display: none">
+                                <label for="mn-image-right" class="form-label">Imagen Der</label>
+                                <input class="form-control" type="file" id="mn-image-right" name="mn-image-right">
+                            </div>
+
+                            <div id="container-mn-text-left" class="col-6 mb-3 container-mn-layout" style="display: none">
+                                <label for="mn-text-left" class="form-label">Texto</label>
+                                <input type="text" class="form-control" id="mn-text-left" name="mn-text-left" placeholder="">
+                            </div>
+
+                            <div id="container-mn-text-right" class="col-6 mb-3 container-mn-layout" style="display: none">
+                                <label for="mn-text-right" class="form-label">Texto Der</label>
+                                <input type="text" class="form-control" id="mn-text-right" name="mn-text-right" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">
+                            <span class="iconify" data-icon="mdi:format-paint"></span>
+                            Estilo elementos
+                        </label>
+                        <select name="style" class="form-select custom-input">
+                            <option value="default">Normal</option>
+                            <option value="center">Centrado</option>
+                            <option value="full-width">Ocupar todo el ancho</option>
+                            <option value="full-width-height">Ocupar todo el ancho y alto</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">
+                                <span class="iconify" data-icon="mdi:arrow-collapse-up"></span>
+                                Margen arriba ? (Unidades en rem, tambien se puede centrar con auto)
+                            </label>
+                            <input type="text" name="margin-top" class="form-control custom-input" value="0">
+                        </div>
+
+                        <div class="col-6 mb-3">
+                            <label class="form-label">
+                                <span class="iconify" data-icon="mdi:arrow-collapse-down"></span>
+                                Margen abajo ? (Unidades en rem, tambien se puede centrar con auto)
+                            </label>
+                            <input type="text" name="margin-bottom" class="form-control custom-input" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label">
+                            <span class="iconify" data-icon="mdi:palette"></span>
+                            Color fondo (hex)
+                        </label>
+                        <input type="text" name="background" class="form-control custom-input" value="#ffffff" placeholder="#ffffff">
+                    </div>
+                </form>
+
+                <div id="demo_html"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="demo-new-section" type="button" class="btn btn-warning" disabled>Generar DEMO</button>
+                <button id="create-new-section" type="button" class="btn btn-primary">Crear sección</button>
+            </div>
+        </div>
+    </div>
+</div>

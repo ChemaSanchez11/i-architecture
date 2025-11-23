@@ -8,7 +8,7 @@ class HomeController
 {
     public function index()
     {
-        global $CFG;
+        global $CFG, $DB;
 
         // Crear una instancia de la clase Renderer
         $renderer = new Renderer();
@@ -30,8 +30,19 @@ class HomeController
             'routes' => array_values($CFG->routes),
         ]);
 
+        $proyects = $DB->get_records('SELECT id, name, source, source_type FROM proyects');
+
+        foreach ($proyects as &$proyect) {
+            $proyect->source_image = true;
+            $proyect->source_video = false;
+            if ($proyect->source_type === 'video') {
+                $proyect->source_image = false;
+                $proyect->source_video = true;
+            }
+        }
+
         // Renderizar el HTML completo (incluye head, nav y body)
-        $renderer->render_html('home');
+        $renderer->render_html('home', ['proyects' => $proyects]);
 
     }
 }

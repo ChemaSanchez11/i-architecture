@@ -1,0 +1,94 @@
+.navbar.navbar-expand-lg.bg-white {
+    position: fixed;
+    top: 1rem;
+    width: 100%;
+    background-color: transparent !important;
+}
+
+#container-gif-home {
+    position: relative;
+    z-index: -1;
+}
+
+.gif-text {
+    position: absolute;
+    left: 10rem;
+    bottom: 6rem;
+
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600; /* SemiBold */
+    font-size: 40px;
+    line-height: 100%;
+    letter-spacing: 0;
+
+    color: #3F2212;
+
+    transition: color 0.3s ease;
+}
+
+.text-block {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 20px;
+    line-height: 100%;
+    color: #3F221266;
+    max-width: 620px;
+}
+
+.two-images-left-large-right-small .left-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.two-images-left-large-right-small .right-image {
+    width: 80%; /* más pequeña que la izquierda */
+    height: auto;
+    object-fit: cover;
+}
+
+/* Resalte para la sección activa */
+.section-active {
+    border-top: 4px solid #0d6efd;
+    border-bottom: 4px solid #0d6efd;
+    box-shadow: 0 0 12px rgba(13,110,253,0.12);
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+/* Menu fijo (lo posicionamos con js) */
+#section-menu {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: 0px 4px 18px rgba(0,0,0,0.15);
+    border: 1px solid rgba(200,200,200,0.5);
+    position: fixed;
+    right: 20px;
+    z-index: 100;
+    display: none;
+}
+
+/* optional: tamaño y espaciado de botones */
+#section-menu .btn {
+    border-radius: 10px;
+    padding: .28rem .5rem;
+    font-size: .85rem;
+}
+
+#demo-new-section[disabled] {
+    background-color: #c6c6c6 !important;
+    color: gray !important;
+    border: gray !important;
+}
+
+/* Opcional: responsivo */
+@media (max-width: 768px) {
+    .two-images-left-large-right-small .row {
+        flex-direction: column;
+    }
+    .two-images-left-large-right-small .right-image {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+}

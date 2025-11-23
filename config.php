@@ -14,20 +14,22 @@ $CFG = new stdClass();
 session_name('i_architecture_session');
 session_start();
 
+$CFG->proyect = 'i-architecture';
+
 $CFG->routes = [
     '/home' => [
-        'name' => 'Inicio',
-        'visible' => false,
-        'controller' => 'HomeController',
-        'method' => 'index',
-        'has_params' => false,
-    ],
-    '/projects' => [
         'name' => 'projects',
         'visible' => true,
         'controller' => 'HomeController',
         'method' => 'index',
         'has_params' => false,
+    ],
+    '/project' => [
+        'name' => 'project',
+        'visible' => false,
+        'controller' => 'ProjectController',
+        'method' => 'index',
+        'has_params' => true,
     ],
     '/about' => [
         'name' => 'about',

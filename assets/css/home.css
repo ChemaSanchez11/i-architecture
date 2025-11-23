@@ -1,3 +1,62 @@
 #container-gif-home img {
     height: calc(100vh - 101px);
 }
+
+.grid-proyects {
+    width: 100%;
+    position: relative; /* importante para Masonry */
+}
+
+.grid-proyects .grid-sizer {
+    width: 50%; /* define ancho de columna normal */
+}
+
+.grid-proyects .grid-item {
+    width: 50%; /* dos columnas */
+    position: relative;
+}
+
+.grid-proyects .overlay-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: end;
+    justify-content: end;
+    color: white;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 100%;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.grid-proyects .grid-item:hover .overlay-text {
+    opacity: 1;
+}
+
+.grid-proyects .grid-item img,
+.grid-proyects .grid-item video {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    transition: filter 0.3s ease;
+}
+
+.grid-proyects .grid-item img:hover,
+.grid-proyects .grid-item video:hover {
+    filter: brightness(46%) sepia(10%) saturate(200%);
+}
+
+/* Items full-width */
+.grid-proyects .grid-item--full {
+    width: 100%;
+}

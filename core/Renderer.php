@@ -61,15 +61,37 @@ class Renderer
         $baseurl = $protocol . "://" . $host . $path;
 
         // Añadimos un helper "img"
-        $this->mustache->addHelper('img', function($text, $render) use ($baseurl) {
+        $this->mustache->addHelper('print_img', function($text, $render) use ($baseurl) {
             $filename = trim($render($text));
+
+            if (str_starts_with($filename, 'data:')) {
+                return $filename;
+            }
+
             return $baseurl . '/assets/images/' . $filename;
         });
 
         // Añadimos un helper "video"
-        $this->mustache->addHelper('video', function($text, $render) use ($baseurl) {
+        $this->mustache->addHelper('print_video', function($text, $render) use ($baseurl) {
             $filename = trim($render($text));
             return $baseurl . '/assets/videos/' . $filename;
+        });
+
+        // Añadimos un helper "link"
+        $this->mustache->addHelper('link', function($route, $render) use ($baseurl) {
+
+            // Render del parámetro
+            $route = $render($route);
+
+            // Si es "/" queda vacío
+            if ($route === '/') {
+                $route = '';
+            } else {
+                // Quitar una / inicial si existe
+                $route = ltrim($route, '/');
+            }
+
+            return $baseurl . '/' . $route;
         });
     }
 
@@ -87,6 +109,11 @@ class Renderer
         $this->nav = $this->render_template('core/nav', $params);
     }
 
+    public function render_nav_transparent(array $params): void
+    {
+        $this->nav = $this->render_template('core/nav-transparent', $params);
+    }
+
     public function render_template(string $template, array $data = []): string
     {
         try {
@@ -96,7 +123,7 @@ class Renderer
         }
     }
 
-    public function render_html(string $template, $params = [])
+    public function render_html(string $template, $params = [], $print_footer = true)
     {
         if (is_null($this->head)) {
             $this->render_head();
@@ -107,7 +134,8 @@ class Renderer
         echo $this->render_template('core/html', [
             'head' => $this->head,
             'nav' => $this->nav,
-            'body' => $body
+            'body' => $body,
+            'print_footer' => $print_footer
         ]);
     }
 }

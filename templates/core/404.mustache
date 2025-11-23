@@ -1,0 +1,67 @@
+<div class="center-div">
+
+    <img src="{{#print_img}}404.png{{/print_img}}" alt="">
+
+    <h3>404</h3>
+    <span>
+        ¡Vaya! Nos has pillado en plena obra.
+    </span>
+
+    <a class="d-flex mx-auto mt-5" href="{{#link}}/{{/link}}">Volver a la home</a>
+</div>
+
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        font-family: 'Montserrat', sans-serif; /* si quieres mantener la misma fuente */
+    }
+
+    .center-div {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* centra vertical y horizontal */
+    }
+
+    .center-div img {
+        max-width: 476px;
+        max-height: 348px;
+    }
+
+    .center-div h3 {
+        font-family: 'Montserrat', serif;
+        font-weight: 600;
+        font-size: 40px;
+        line-height: 100%;
+    }
+
+    .center-div span {
+        font-family: 'Montserrat', serif;
+        font-weight: 300;
+        font-size: 20px;
+        line-height: 100%;
+        color: #3F221280;
+    }
+    
+    .center-div a {
+        font-family: 'Montserrat', serif;
+        font-weight: 300;
+        font-size: 17px;
+        line-height: 100%;
+        color: #3F2212;
+        border: 1px solid #3F2212;
+        border-radius: 16px;
+        gap: 12px;
+        padding: 12px;
+        text-decoration: none !important;
+        width: fit-content;
+    }
+
+    .center-div a:hover {
+        background: #3F221299 !important;
+        border-color: rgba(65, 33, 16, 0.44) !important;
+        color: #ffffff !important;
+    }
+</style>

@@ -3,11 +3,15 @@
     {{& head }}
     <body>
         {{& nav }}
-        {{> core/loading }}
+        {{#print_footer}}
+            {{> core/loading }}
+        {{/print_footer}}
 
-        <main id="page" style="display: none;">
+        <main id="page" {{#print_footer}}style="display: none;"{{/print_footer}}>
             {{{ body }}}
         </main>
-        {{> core/footer }}
+        {{#print_footer}}
+            {{> core/footer }}
+        {{/print_footer}}
     </body>
 </html>
