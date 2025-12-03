@@ -37,8 +37,72 @@ $( document ).ready(function() {
         setInterval(updateTextColor, 100);
     });
 
+    let currentSection = null;
+
+    // Abrir menú con clic derecho
+    $(document).on("contextmenu", "section[data-section]", function (e) {
+        e.preventDefault(); // Evitar menú del navegador
+
+        currentSection = $(this); // Guardamos la sección clicada
+
+        $("#customMenu")
+            .finish()
+            .toggle(100)
+            .css({
+                top: e.pageY + "px",
+                left: e.pageX + "px"
+            });
+
+    });
+
+    // Ocultar menú al hacer click fuera
+    $(document).on("mousedown", function (e) {
+        if (!$(e.target).closest("#customMenu").length) {
+            $("#customMenu").hide(100);
+        }
+    });
+
+    // Acción Editar
+    // $("#menu-edit").on("click", function () {
+    //     if (currentSection) {
+    //         alert("Editar sección ID: " + currentSection.data("section"));
+    //     }
+    //     $("#customMenu").hide();
+    // });
+
+    // Acción Eliminar
+    $("#menu-delete").on("click", async function () {
+        if (currentSection) {
+            const formData = new FormData();
+            formData.append('project', currentSection.data("section"));
+
+            try {
+                const response = await fetch('/i-architecture/api/delete_section', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result?.success) {
+                    currentSection.remove();
+                }
+
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+        $("#customMenu").hide();
+    });
+
     const CONTAINER_IMAGE_LEFT = '#container-mn-image-left';
     const CONTAINER_IMAGE_RIGHT = '#container-mn-image-right';
+    const CONTAINER_VIDEO_LEFT = '#container-mn-video-left';
+    const CONTAINER_VIDEO_RIGHT = '#container-mn-video-right';
     const CONTAINER_TEXT_LEFT = '#container-mn-text-left';
     const CONTAINER_TEXT_RIGHT = '#container-mn-text-right';
     const MENU_SELECTOR = '#section-menu';
@@ -77,6 +141,18 @@ $( document ).ready(function() {
             case "text_left_image_right":
                 $(CONTAINER_TEXT_LEFT).show();
                 $(CONTAINER_IMAGE_RIGHT).show();
+                break;
+            case "image_left_text_right":
+                $(CONTAINER_TEXT_RIGHT).show();
+                $(CONTAINER_IMAGE_LEFT).show();
+                break;
+            case "text_left_video_right":
+                $(CONTAINER_TEXT_LEFT).show();
+                $(CONTAINER_VIDEO_RIGHT).show();
+                break;
+            case "video_left_text_right":
+                $(CONTAINER_VIDEO_LEFT).show();
+                $(CONTAINER_TEXT_RIGHT).show();
                 break;
             case "two_images_left_large_right_small":
                 $(CONTAINER_IMAGE_LEFT).show();

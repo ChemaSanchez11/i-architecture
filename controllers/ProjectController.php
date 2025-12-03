@@ -37,7 +37,7 @@ class ProjectController
         // 2️⃣ Obtener secciones del proyecto
         $sections = $DB->get_records("
             SELECT * FROM project_sections 
-            WHERE project_id = ? 
+            WHERE project_id = ? AND visible = 1
             ORDER BY `order` ASC
         ", [$id]);
 

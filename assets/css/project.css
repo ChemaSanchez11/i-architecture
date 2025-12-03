@@ -82,6 +82,33 @@
     border: gray !important;
 }
 
+.custom-menu {
+    display: none;
+    position: absolute;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #ccc;
+    min-width: 120px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    font-family: Arial;
+}
+
+.custom-menu ul {
+    margin: 0;
+    padding: 5px 0;
+    list-style: none;
+}
+
+.custom-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.custom-menu li:hover {
+    background: #f0f0f0;
+}
+
 /* Opcional: responsivo */
 @media (max-width: 768px) {
     .two-images-left-large-right-small .row {

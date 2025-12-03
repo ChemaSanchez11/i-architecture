@@ -14,6 +14,12 @@
         {{#is_text_left_image_right}}
             {{> sections/text_left_image_right }}
         {{/is_text_left_image_right}}
+        {{#is_text_left_video_right}}
+            {{> sections/text_left_video_right }}
+        {{/is_text_left_video_right}}
+        {{#is_video_left_text_right}}
+            {{> sections/video_left_text_right }}
+        {{/is_video_left_text_right}}
         {{#is_two_images_left_large_right_small}}
             {{> sections/two_images_left_large_right_small }}
         {{/is_two_images_left_large_right_small}}
@@ -65,6 +71,9 @@
                         <select id="new-section-layout" name="layout" class="form-select custom-input">
                             <option value="" disabled selected>Seleccionar..</option>
                             <option value="text_left_image_right">Texto Izquierda | Imagen Derecha</option>
+                            <option value="image_left_text_right">Imagen Izquierda | Texto Derecha</option>ç
+                            <option value="text_left_video_right">Texto Izquierda | Video Derecha</option>
+                            <option value="video_left_text_right">Video Izquierda | Texto Derecha</option>
                             <option value="two_images_left_large_right_small">Imagen Grande Izq | Imagen Pequeña Der</option>
                             <option value="one_image">Una imagen</option>
                             <option value="two_images">Dos imagenes</option>
@@ -81,6 +90,16 @@
                             <div id="container-mn-image-right" class="col-6 mb-3 container-mn-layout" style="display: none">
                                 <label for="mn-image-right" class="form-label">Imagen Der</label>
                                 <input class="form-control" type="file" id="mn-image-right" name="mn-image-right">
+                            </div>
+
+                            <div id="container-mn-video-left" class="col-6 mb-3 container-mn-layout" style="display: none">
+                                <label for="mn-video-left" class="form-label">Video</label>
+                                <input class="form-control" type="file" id="mn-image-left" name="mn-video-left">
+                            </div>
+
+                            <div id="container-mn-video-right" class="col-6 mb-3 container-mn-layout" style="display: none">
+                                <label for="mn-video-right" class="form-label">Video Der</label>
+                                <input class="form-control" type="file" id="mn-video-right" name="mn-video-right">
                             </div>
 
                             <div id="container-mn-text-left" class="col-6 mb-3 container-mn-layout" style="display: none">
@@ -144,4 +163,10 @@
             </div>
         </div>
     </div>
+</div>
+<div id="customMenu" class="custom-menu">
+    <ul>
+        <li id="menu-edit">Editar</li>
+        <li id="menu-delete">Eliminar</li>
+    </ul>
 </div>
