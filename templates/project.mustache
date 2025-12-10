@@ -70,7 +70,7 @@
                         </label>
                         <select id="new-section-layout" name="layout" class="form-select custom-input">
                             <option value="" disabled selected>Seleccionar..</option>
-                            <option value="text_left_image_right">Texto Izquierda | Imagen Derecha</option>
+<!--                            <option value="text_left_image_right">Texto Izquierda | Imagen Derecha</option>-->
                             <option value="image_left_text_right">Imagen Izquierda | Texto Derecha</option>ç
                             <option value="text_left_video_right">Texto Izquierda | Video Derecha</option>
                             <option value="video_left_text_right">Video Izquierda | Texto Derecha</option>
@@ -85,31 +85,37 @@
                             <div id="container-mn-image-left" class="col-6 mb-3 container-mn-layout" style="display: none">
                                 <label for="mn-image-left" class="form-label">Imagen</label>
                                 <input class="form-control" type="file" id="mn-image-left" name="mn-image-left">
+                                <input class="form-control" type="hidden" id="hdn-image-left" name="hdn-image-left">
                             </div>
 
                             <div id="container-mn-image-right" class="col-6 mb-3 container-mn-layout" style="display: none">
                                 <label for="mn-image-right" class="form-label">Imagen Der</label>
                                 <input class="form-control" type="file" id="mn-image-right" name="mn-image-right">
+                                <input class="form-control" type="hidden" id="hdn-image-right" name="hdn-image-right">
                             </div>
 
                             <div id="container-mn-video-left" class="col-6 mb-3 container-mn-layout" style="display: none">
                                 <label for="mn-video-left" class="form-label">Video</label>
                                 <input class="form-control" type="file" id="mn-image-left" name="mn-video-left">
+                                <input class="form-control" type="hidden" id="hdn-video-left" name="hdn-video-left">
                             </div>
 
                             <div id="container-mn-video-right" class="col-6 mb-3 container-mn-layout" style="display: none">
                                 <label for="mn-video-right" class="form-label">Video Der</label>
                                 <input class="form-control" type="file" id="mn-video-right" name="mn-video-right">
+                                <input class="form-control" type="hidden" id="hdn-video-right" name="hdn-video-right">
                             </div>
 
                             <div id="container-mn-text-left" class="col-6 mb-3 container-mn-layout" style="display: none">
                                 <label for="mn-text-left" class="form-label">Texto</label>
                                 <input type="text" class="form-control" id="mn-text-left" name="mn-text-left" placeholder="">
+                                <input class="form-control" type="hidden" id="hdn-text-left" name="hdn-text-left">
                             </div>
 
                             <div id="container-mn-text-right" class="col-6 mb-3 container-mn-layout" style="display: none">
                                 <label for="mn-text-right" class="form-label">Texto Der</label>
                                 <input type="text" class="form-control" id="mn-text-right" name="mn-text-right" placeholder="">
+                                <input class="form-control" type="hidden" id="hdn-text-right" name="hdn-text-right">
                             </div>
                         </div>
                     </div>
@@ -122,6 +128,7 @@
                         <select name="style" class="form-select custom-input">
                             <option value="default">Normal</option>
                             <option value="center">Centrado</option>
+                            <option value="align-right">Alineado Derecha</option>
                             <option value="full-width">Ocupar todo el ancho</option>
                             <option value="full-width-height">Ocupar todo el ancho y alto</option>
                         </select>
@@ -150,11 +157,11 @@
                             <span class="iconify" data-icon="mdi:palette"></span>
                             Color fondo (hex)
                         </label>
-                        <input type="text" name="background" class="form-control custom-input" value="#ffffff" placeholder="#ffffff">
+                        <input type="text" id="create_background" name="background" class="form-control custom-input" placeholder="#ffffff">
                     </div>
                 </form>
 
-                <div id="demo_html"></div>
+                <div id="demo_html" class="border-1" style="background: #f7f7f7"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -170,3 +177,11 @@
         <li id="menu-delete">Eliminar</li>
     </ul>
 </div>
+<button id="menu-no-sections" style="
+    position: fixed; bottom: 20px; right: 20px;
+    padding: 12px 20px; background: #333; color: white;
+    border-radius: 8px; display:none; z-index:9999;"
+    data-bs-toggle="modal" data-bs-target="#new-section-dialog"
+>
+    Crear primera sección
+</button>

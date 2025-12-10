@@ -63,12 +63,75 @@ $( document ).ready(function() {
     });
 
     // Acción Editar
-    // $("#menu-edit").on("click", function () {
-    //     if (currentSection) {
-    //         alert("Editar sección ID: " + currentSection.data("section"));
-    //     }
-    //     $("#customMenu").hide();
-    // });
+    $("#menu-edit").on("click", async function () {
+        if (currentSection) {
+            $("#new-section-dialog").modal('show');
+
+            try {
+                const formData = new FormData();
+                formData.append('id', currentSection.data("section"));
+
+                const response = await fetch('/i-architecture/api/get_section', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                let data = result.output;
+
+                console.log(data);
+
+                if (data.layout_type === 'text_left_image_right') {
+                    $('#mn-text-left').val(data.text_left);
+                    $('#hdn-image-right').val(data.image_right);
+                } else if (data.layout_type === 'image_left_text_right') {
+                    $('#hdn-image-left').val(data.image_left);
+                    $('#mn-text-right').val(data.text_right);
+                } else if (data.layout_type === 'two_images_left_large_right_small') {
+                    $('#hdn-image-left').val(data.image_left);
+                    $('#hdn-image-right').val(data.image_right);
+                } else if (data.layout_type === 'one_image') {
+                    $('#hdn-image-left').val(data.image_left);
+                } else if (data.layout_type === 'two_images') {
+                    $('#hdn-image-left').val(data.image_left);
+                    $('#hdn-image-right').val(data.image_right);
+                }
+
+                $('#new-section-layout').val(data.layout_type).trigger('change');
+
+                if (data?.background ?? false) {
+                    $('#create_background').val(data.background);
+                }
+
+                // Estilo elementos
+                if (data?.item_values?.select_style ?? false) {
+                    $("#new-section-dialog select[name='style']").val(data.item_values.select_style);
+                    // $('').val(data.background);
+                }
+
+                // Margin TOP
+                if (data?.item_values?.margin_top ?? false) {
+                    $("#new-section-dialog input[name='margin-top']").val(data.item_values.margin_top);
+                    // $('').val(data.background);
+                }
+
+                // Margin BOTTOM
+                if (data?.item_values?.margin_bottom ?? false) {
+                    $("#new-section-dialog input[name='margin-bottom']").val(data.item_values.margin_bottom);
+                    // $('').val(data.background);
+                }
+
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+        $("#customMenu").hide();
+    });
 
     // Acción Eliminar
     $("#menu-delete").on("click", async function () {
@@ -221,7 +284,9 @@ $( document ).ready(function() {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
 
-            location.reload();
+            $('#new-section-form')[0].reset();
+
+            // location.reload();
 
         } catch (err) {
             console.error('Error enviando demo:', err);
@@ -434,6 +499,29 @@ $( document ).ready(function() {
             insertSectionId = target;
         });
 
+        showOrHideFirstSectionBtn();
+
+        function showOrHideFirstSectionBtn() {
+            if (sections.length === 0) {
+                // No hay secciones → mostrar botón para crear la primera
+                $("#menu-no-sections").show();
+            } else {
+                $("#menu-no-sections").hide();
+            }
+        }
+
+
+        $(document).on("hidden.bs.modal", "#new-section-dialog", function (e) {
+            $('#new-section-form')[0].reset();
+            $('#demo_html').html('');
+            showOrHideFirstSectionBtn();
+        });
+
+        $("#menu-no-sections").on("click", function () {
+            insertPosition = "bottom";  // o null, la API decidirá
+            insertSectionId = null;     // porque no hay sección target
+            $("#menu-no-sections").hide();
+        });
 
         $('#create-bottom').on('click', function () {
             const target = $menu.data('section-target');

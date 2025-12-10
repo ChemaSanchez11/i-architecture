@@ -67,6 +67,150 @@ class ApiController
         $this->send_response($response);
     }
 
+    public function get_section() {
+
+        global $DB;
+
+        if (empty($this->params['id'])) {
+            $response = [
+                'success' => false,
+                'output' => 'Faltan parametros'
+            ];
+            $this->send_response($response, 400);
+        }
+
+        $id = $this->params['id'];
+
+        $project_section = $DB->get_record('SELECT
+            * 
+        FROM
+            project_sections ps
+        WHERE
+            id = ?', [$id]);
+
+        $items = $DB->get_records('SELECT
+            * 
+        FROM
+            project_section_items psi
+        WHERE
+            psi.section_id = ?', [$id]);
+
+        $project_section->items = $items;
+
+        $custom_css = json_decode($project_section->custom_css ?? '', true);
+
+        if (!empty($custom_css['background'])) {
+            $project_section->background = $custom_css['background'];
+        }
+
+        $project_section->item_values = [];
+
+        $items_raw = [];
+
+        foreach ($items as $item) {
+            $items_css = json_decode($item->settings ?? '', true);
+
+            if ($item->type === 'image') {
+                if (isset($items_raw['image1'])) {
+                    $items_raw['image2'] = $item->media_url;
+                } else {
+                    $items_raw['image1'] = $item->media_url;
+                }
+            } else if ($item->type === 'video') {
+                if (isset($items_raw['video1'])) {
+                    $items_raw['video2'] = $item->media_url;
+                } else {
+                    $items_raw['video1'] = $item->media_url;
+                }
+            } else if ($item->type === 'text') {
+                if (isset($items_raw['text1'])) {
+                    $items_raw['text2'] = $item->content;
+                } else {
+                    $items_raw['text1'] = $item->content;
+                }
+            }
+
+            if (
+                (!empty($items_css['width']) && self::clean_css_value($items_css['width']) === "100%") &&
+                (!empty($items_css['height']) && self::clean_css_value($items_css['height']) === "100%")
+            ) {
+                $project_section->item_values['select_style'] = 'full-width-height';
+            } else if (!empty($items_css['width']) && self::clean_css_value($items_css['width']) === "100%") {
+                $project_section->item_values['select_style'] = 'full-width';
+            } else if (!empty($items_css['align-self']) && $items_css['align-self'] === "center !important;") {
+                $project_section->item_values['select_style'] = 'center';
+            } else if (
+                (!empty($items_css['display']) && $items_css['display'] === "block") &&
+                (!empty($items_css['margin-left']) && $items_css['margin-left'] === "auto")
+            ) {
+                $project_section->item_values['select_style'] = 'align-right';
+            }
+
+            if (!empty($items_css['margin-top'])) {
+                $project_section->item_values['margin_top'] = self::clean_css_value($items_css['margin-top']);
+            }
+
+            if (!empty($items_css['margin-bottom'])) {
+                $project_section->item_values['margin_bottom'] = self::clean_css_value($items_css['margin-bottom']);
+            }
+        }
+
+        if ($project_section->layout_type === 'text_left_image_right') {
+            if (!empty($items_raw['text1'])) {
+                $project_section->text_left = $items_raw['text1'];
+            }
+            if (!empty($items_raw['image1'])) {
+                $project_section->image_right = $items_raw['image1'];
+            }
+        } else if ($project_section->layout_type === 'image_left_text_right') {
+            if (!empty($items_raw['text1'])) {
+                $project_section->image_left = $items_raw['image1'];
+            }
+            if (!empty($items_raw['image1'])) {
+                $project_section->text_right = $items_raw['text1'];
+            }
+        } else if ($project_section->layout_type === 'two_images_left_large_right_small') {
+            if (!empty($items_raw['image1'])) {
+                $project_section->image_left = $items_raw['image1'];
+            }
+            if (!empty($items_raw['image2'])) {
+                $project_section->image_right = $items_raw['image2'];
+            }
+        } else if ($project_section->layout_type === 'one_image') {
+            if (!empty($items_raw['image1'])) {
+                $project_section->image_left = $items_raw['image1'];
+            }
+        } else if ($project_section->layout_type === 'two_images') {
+            if (!empty($items_raw['image1'])) {
+                $project_section->image_left = $items_raw['image1'];
+            }
+            if (!empty($items_raw['image2'])) {
+                $project_section->image_right = $items_raw['image2'];
+            }
+        }
+
+        $project_section->items_raw = $items_raw;
+
+        $response = [
+            'success' => true,
+            'output' => $project_section
+        ];
+        $this->send_response($response);
+    }
+
+    function clean_css_value($value) {
+        // Quitar ';'
+        $value = rtrim($value, ';');
+
+        // Quitar "!important"
+        $value = str_ireplace('!important', '', $value);
+
+        // Quitar espacios sobrantes
+        $value = trim($value);
+
+        return $value;
+    }
+
     public function new_section() {
 
         global $DB;
@@ -85,7 +229,7 @@ class ApiController
         $layout_type = $this->params['layout'];
         $time = time();
 
-        $order_target_section = $DB->get_record('SELECT `order` FROM project_sections WHERE id = ?', [$this->params['target_section']])->order ?? 1;
+        $order_target_section = $DB->get_record('SELECT `order` FROM project_sections WHERE id = ?', [$this->params['target_section']])->order ?? 0;
 
         $custom_css = [];
         if (!empty($this->params['background'])) {
@@ -117,6 +261,10 @@ class ApiController
 
         $DIR = __DIR__ . "/../assets/images/proyects/p-$project_id/";
         $DB_DIR = "proyects/p-$project_id/";
+
+        if (!is_dir($DIR)) {
+            mkdir($DIR, 0777, true);
+        }
 
         foreach ($_FILES as $key => $value) {
             if(!empty($value['tmp_name'])) {
@@ -291,8 +439,11 @@ class ApiController
             ");
         } else if ($this->params['layout'] === 'one_image') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css['width'] = "100% !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+                $css['display'] = 'block';
+                $css['margin-left'] = 'auto !important;';
             }
 
             $section_id = $project_section;
@@ -437,7 +588,7 @@ class ApiController
                         'type' => 'image',
                         'is_image' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-right']['base64']
+                        'media_url' => $files['mn-image-right']['base64'] ?? $this->params['hdn-image-right']
                     ]
                 ]
             ];
@@ -555,13 +706,13 @@ class ApiController
                     [
                         'type' => 'image',
                         'is_image_left' => true,
-                        'media_url' => $files['mn-image-left']['base64']
+                        'media_url' => $files['mn-image-left']['base64'] ?? $this->params['hdn-image-left']
                     ],
                     [
                         'type' => 'image',
                         'is_image_right' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-right']['base64']
+                        'media_url' => $files['mn-image-right']['base64'] ?? $this->params['hdn-image-right']
                     ]
                 ]
             ];
@@ -571,6 +722,8 @@ class ApiController
 
             if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css .= "width: 100% !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+                $css .= "display: block; margin-left: auto !important;";
             }
 
             $temp_data = [
@@ -581,7 +734,7 @@ class ApiController
                         'type' => 'image',
                         'is_image' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-left']['base64']
+                        'media_url' => $files['mn-image-left']['base64'] ?? $this->params['hdn-image-left']
                     ]
                 ]
             ];
@@ -603,13 +756,13 @@ class ApiController
                         'type' => 'image',
                         'is_image_left' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-left']['base64']
+                        'media_url' => $files['mn-image-left']['base64'] ?? $this->params['hdn-image-left']
                     ],
                     [
                         'type' => 'image',
                         'is_image_right' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-right']['base64']
+                        'media_url' => $files['mn-image-right']['base64']  ?? $this->params['hdn-image-right']
                     ]
                 ]
             ];
