@@ -169,6 +169,20 @@ class ApiController
             if (!empty($items_raw['image1'])) {
                 $project_section->text_right = $items_raw['text1'];
             }
+        } else if ($project_section->layout_type === 'text_left_video_right') {
+            if (!empty($items_raw['text1'])) {
+                $project_section->text_left = $items_raw['text1'];
+            }
+            if (!empty($items_raw['video1'])) {
+                $project_section->video_right = $items_raw['video1'];
+            }
+        } else if ($project_section->layout_type === 'video_left_text_right') {
+            if (!empty($items_raw['text1'])) {
+                $project_section->text_right = $items_raw['text1'];
+            }
+            if (!empty($items_raw['video1'])) {
+                $project_section->video_left = $items_raw['video1'];
+            }
         } else if ($project_section->layout_type === 'two_images_left_large_right_small') {
             if (!empty($items_raw['image1'])) {
                 $project_section->image_left = $items_raw['image1'];
@@ -225,6 +239,8 @@ class ApiController
             $this->send_response($response, 400);
         }
 
+        $action_update = !empty($this->params['update_id']);
+
         $project_id = $this->params['project'];
         $layout_type = $this->params['layout'];
         $time = time();
@@ -239,22 +255,26 @@ class ApiController
         $custom_css = json_encode($custom_css);
 
         $project_section = null;
-        if ($this->params['position'] === 'top') {
-            $newOrder = $order_target_section;
-            $DB->execute('UPDATE project_sections SET `order` = `order` + 1 WHERE `order` >= ?', [$order_target_section]);
-            $project_section = $DB->insert("INSERT INTO project_sections 
-                (project_id, `order`, layout_type, custom_css, custom_settings, timecreated, timeupdated)
-                VALUES 
-                ($project_id, $newOrder, '$layout_type', '$custom_css', '{}', $time, $time)
-            ");
-        } else {
-            $newOrder = $order_target_section + 1;
-            $DB->execute('UPDATE project_sections SET `order` = `order` + 1 WHERE `order` > ?', [$order_target_section]);
-            $project_section = $DB->insert("INSERT INTO project_sections 
-                (project_id, `order`, layout_type, custom_css, custom_settings, timecreated, timeupdated)
-                VALUES 
-                ($project_id, $newOrder, '$layout_type', '$custom_css', '{}', $time, $time)
-            ");
+
+        // Si no es actualizar
+        if (!$action_update) {
+            if ($this->params['position'] === 'top') {
+                $newOrder = $order_target_section;
+                $DB->execute('UPDATE project_sections SET `order` = `order` + 1 WHERE `order` >= ?', [$order_target_section]);
+                $project_section = $DB->insert("INSERT INTO project_sections 
+                    (project_id, `order`, layout_type, custom_css, custom_settings, timecreated, timeupdated)
+                    VALUES 
+                    ($project_id, $newOrder, '$layout_type', '$custom_css', '{}', $time, $time)
+                ");
+            } else {
+                $newOrder = $order_target_section + 1;
+                $DB->execute('UPDATE project_sections SET `order` = `order` + 1 WHERE `order` > ?', [$order_target_section]);
+                $project_section = $DB->insert("INSERT INTO project_sections 
+                    (project_id, `order`, layout_type, custom_css, custom_settings, timecreated, timeupdated)
+                    VALUES 
+                    ($project_id, $newOrder, '$layout_type', '$custom_css', '{}', $time, $time)
+                ");
+            }
         }
 
         $files = [];
@@ -324,20 +344,51 @@ class ApiController
             $content = $this->params['mn-text-left'];
             $css = json_encode($css);
 
-            $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '$content', '', '$css', 1, $time, $time)
-            ");
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '$content', '', '$css', 1, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'text'", [$this->params['update_id']])->id;
+
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '$content',
+                        media_url    = '',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
 
             $type = 'image';
-            $media_url = $files['mn-image-right']['path'];
+            $media_url = $files['mn-image-right']['path'] ?? $this->params['hdn-image-right'];
 
-            $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '', '$media_url', '$css', 2, $time, $time)
-            ");
+            if (!$action_update) {
+                $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '', '$media_url', '$css', 2, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'image'", [$this->params['update_id']])->id;
+
+                $project_section_items_2 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
+
         } else if ($this->params['layout'] === 'image_left_text_right') {
 
             if(!empty($this->params['style']) && $this->params['style'] === 'center') {
@@ -346,24 +397,55 @@ class ApiController
 
             $section_id = $project_section;
             $type = 'image';
-            $media_url = $files['mn-image-left']['path'];
+            $media_url = $files['mn-image-left']['path'] ?? $this->params['hdn-image-left'];
             $css = json_encode($css);
 
-            $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
-            ");
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'image'", [$this->params['update_id']])->id;
+
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
 
             $type = 'text';
             $content = $this->params['mn-text-right'];
-            $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '$content', '', '$css', 2, $time, $time)
-            ");
-        } else if ($this->params['layout'] === 'text_left_video_right') {
 
+            if (!$action_update) {
+                $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '$content', '', '$css', 2, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'text'", [$this->params['update_id']])->id;
+
+                $project_section_items_2 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '$content',
+                        media_url    = '',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
+
+        } else if ($this->params['layout'] === 'text_left_video_right') {
             if(!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['align-self'] = "center !important;";
             }
@@ -373,45 +455,101 @@ class ApiController
             $content = $this->params['mn-text-left'];
             $css = json_encode($css);
 
-            $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '$content', '', '$css', 1, $time, $time)
-            ");
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '$content', '', '$css', 1, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'text'", [$this->params['update_id']])->id;
+
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '$content',
+                        media_url    = '',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
 
             $type = 'video';
-            $media_url = $files['mn-video-right']['path'];
+            $media_url = $files['mn-video-right']['path'] ?? $this->params['hdn-video-right'];
+            if (!$action_update) {
+                $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '', '$media_url', '$css', 2, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'video'", [$this->params['update_id']])->id;
 
-            $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '', '$media_url', '$css', 2, $time, $time)
-            ");
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
         } else if ($this->params['layout'] === 'video_left_text_right') {
-
             if(!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['align-self'] = "center !important;";
             }
 
             $section_id = $project_section;
             $type = 'video';
-            $media_url = $files['mn-video-left']['path'];
+            $media_url = $files['mn-video-left']['path'] ?? $this->params['hdn-video-left'];
             $css = json_encode($css);
-
-            $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
                 (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
                 VALUES 
                 ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
             ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'video'", [$this->params['update_id']])->id;
+
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
 
             $type = 'text';
             $content = $this->params['mn-text-right'];
+            if (!$action_update) {
+                $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '$content', '', '$css', 2, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'text'", [$this->params['update_id']])->id;
 
-            $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '$content', '', '$css', 2, $time, $time)
-            ");
+                $project_section_items_2 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '$content',
+                        media_url    = '',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
 
         } else if ($this->params['layout'] === 'two_images_left_large_right_small') {
 
@@ -421,22 +559,52 @@ class ApiController
 
             $section_id = $project_section;
             $type = 'image';
-            $media_url = $files['mn-image-left']['path'];
+            $media_url = $files['mn-image-left']['path'] ?? $this->params['hdn-image-left'];
             $css = json_encode($css);
 
-            $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
-            ");
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'image' LIMIT 1", [$this->params['update_id']])->id;
 
-            $media_url = $files['mn-image-right']['path'];
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
 
-            $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
+            $media_url = $files['mn-image-right']['path'] ?? $this->params['hdn-image-right'];
+
+            if (!$action_update) {
+                $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
                 (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
                 VALUES 
                 ($section_id, '$type', '', '$media_url', '$css', 2, $time, $time)
             ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'image' LIMIT 1,1", [$this->params['update_id']])->id;
+
+                $project_section_items_2 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
         } else if ($this->params['layout'] === 'one_image') {
 
             if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
@@ -448,14 +616,29 @@ class ApiController
 
             $section_id = $project_section;
             $type = 'image';
-            $media_url = $files['mn-image-left']['path'];
+            $media_url = $files['mn-image-left']['path'] ?? $this->params['hdn-image-left'];
             $css = json_encode($css);
 
-            $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
-            ");
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'image' LIMIT 1", [$this->params['update_id']])->id;
+
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
         } else if ($this->params['layout'] === 'two_images') {
 
             if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
@@ -467,22 +650,52 @@ class ApiController
 
             $section_id = $project_section;
             $type = 'image';
-            $media_url = $files['mn-image-left']['path'];
+            $media_url = $files['mn-image-left']['path'] ?? $this->params['hdn-image-left'];
             $css = json_encode($css);
 
-            $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
-            ");
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'image' LIMIT 1", [$this->params['update_id']])->id;
 
-            $media_url = $files['mn-image-right']['path'];
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
 
-            $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
-                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
-                VALUES 
-                ($section_id, '$type', '', '$media_url', '$css', 2, $time, $time)
-            ");
+            $media_url = $files['mn-image-right']['path'] ?? $this->params['hdn-image-right'];
+
+            if (!$action_update) {
+                $project_section_items_2 = $DB->insert("INSERT INTO project_section_items 
+                    (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                    VALUES 
+                    ($section_id, '$type', '', '$media_url', '$css', 2, $time, $time)
+                ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'image' LIMIT 1,1", [$this->params['update_id']])->id;
+
+                $project_section_items_2 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
         }
 
         $response = [

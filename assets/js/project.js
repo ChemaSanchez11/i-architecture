@@ -67,6 +67,9 @@ $( document ).ready(function() {
         if (currentSection) {
             $("#new-section-dialog").modal('show');
 
+            $('#create-new-section').text('Editar sección');
+            $('#create-new-section').data('section', currentSection.data("section"));
+
             try {
                 const formData = new FormData();
                 formData.append('id', currentSection.data("section"));
@@ -84,14 +87,18 @@ $( document ).ready(function() {
 
                 let data = result.output;
 
-                console.log(data);
-
                 if (data.layout_type === 'text_left_image_right') {
                     $('#mn-text-left').val(data.text_left);
                     $('#hdn-image-right').val(data.image_right);
                 } else if (data.layout_type === 'image_left_text_right') {
                     $('#hdn-image-left').val(data.image_left);
                     $('#mn-text-right').val(data.text_right);
+                } else if (data.layout_type === 'text_left_video_right') {
+                    $('#mn-text-left').val(data.text_left);
+                    $('#hdn-video-right').val(data.video_right);
+                } else if (data.layout_type === 'video_left_text_right') {
+                    $('#mn-text-right').val(data.text_right);
+                    $('#hdn-video-left').val(data.video_left);
                 } else if (data.layout_type === 'two_images_left_large_right_small') {
                     $('#hdn-image-left').val(data.image_left);
                     $('#hdn-image-right').val(data.image_right);
@@ -273,6 +280,11 @@ $( document ).ready(function() {
         formData.append('project', $('#gif-text').data('id'));
         formData.append('position', insertPosition);
         formData.append('target_section', insertSectionId);
+
+        let updateId = $('#create-new-section').data('section');
+        if(updateId) {
+            formData.append('update_id', updateId);
+        }
 
         try {
             const response = await fetch('/i-architecture/api/new_section', {
@@ -513,6 +525,10 @@ $( document ).ready(function() {
 
         $(document).on("hidden.bs.modal", "#new-section-dialog", function (e) {
             $('#new-section-form')[0].reset();
+
+            $('#create-new-section').text('Crear sección');
+            $('#create-new-section').removeData('section');
+
             $('#demo_html').html('');
             showOrHideFirstSectionBtn();
         });

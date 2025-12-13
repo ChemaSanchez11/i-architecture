@@ -10,17 +10,6 @@ class ProjectController
     {
         global $CFG, $DB;
 
-        $renderer = new Renderer();
-        $renderer->set_title('Proyecto');
-        $renderer->add_styles(['project.css']);
-        $renderer->add_scripts(['project.js']);
-
-        // Render HEAD + NAV
-        $renderer->render_head();
-        $renderer->render_nav_transparent([
-            'routes' => array_values($CFG->routes),
-        ]);
-
         // Recoger ID
         $id = $_GET['id'] ?? null;
         if (!$id) {
@@ -33,6 +22,17 @@ class ProjectController
         if (!$project) {
             die("Proyecto no encontrado");
         }
+
+        $renderer = new Renderer();
+        $renderer->set_title($project['name'] ?? 'Proyecto');
+        $renderer->add_styles(['project.css']);
+        $renderer->add_scripts(['project.js']);
+
+        // Render HEAD + NAV
+        $renderer->render_head();
+        $renderer->render_nav_transparent([
+            'routes' => array_values($CFG->routes),
+        ]);
 
         // 2️⃣ Obtener secciones del proyecto
         $sections = $DB->get_records("
