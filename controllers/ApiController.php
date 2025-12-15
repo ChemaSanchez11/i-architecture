@@ -27,6 +27,29 @@ class ApiController
         exit();
     }
 
+    public function edit_project() {
+
+        global $DB;
+
+        if (empty($this->params['id'])) {
+            $response = [
+                'success' => false,
+                'output' => 'Faltan parametros'
+            ];
+            $this->send_response($response, 400);
+        }
+
+        $id = $this->params['id'];
+        $name = $this->params['name'];
+
+        $DB->execute('UPDATE `proyects` SET `name` = ? WHERE `id` = ?', [$name, $id]);
+
+        $response = [
+            'success' => true
+        ];
+        $this->send_response($response);
+    }
+
     public function move_section() {
 
         global $DB;

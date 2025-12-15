@@ -37,6 +37,36 @@ $( document ).ready(function() {
         setInterval(updateTextColor, 100);
     });
 
+
+    const $el = $('#gif-text');
+
+    // Doble click → activar edición
+    $el.on('dblclick', function () {
+        $(this).attr('contenteditable', 'true').focus();
+    });
+
+    // ENTER → guardar
+    $el.on('keydown', async function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // evita salto de línea
+
+            const id = $(this).data('id');
+            const text = $(this).text().trim();
+
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('name', text);
+
+            const response = await fetch('/i-architecture/api/edit_project', {
+                method: 'POST',
+                body: formData
+            });
+
+            // desactivar edición
+            $(this).removeAttr('contenteditable').blur();
+        }
+    });
+
     let currentSection = null;
 
     // Abrir menú con clic derecho

@@ -7,7 +7,7 @@
 
 #container-gif-home {
     position: relative;
-    z-index: -1;
+    z-index: 1;
 }
 
 .gif-text {
@@ -118,4 +118,9 @@
         width: 100%;
         margin-bottom: 1.5rem;
     }
+}
+
+.gif-text[contenteditable="true"] {
+    outline: 1px dashed #007bff;
+    background: #f8f9fa;
 }
