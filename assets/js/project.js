@@ -371,7 +371,7 @@ $(document).ready(function () {
 
             $('#new-section-form')[0].reset();
 
-            // location.reload();
+            location.reload();
 
         } catch (err) {
             console.error('Error enviando demo:', err);
