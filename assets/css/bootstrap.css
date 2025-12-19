@@ -4202,6 +4202,7 @@ textarea.form-control-lg {
     --bs-navbar-toggler-border-radius: var(--bs-border-radius);
     --bs-navbar-toggler-focus-width: 0.25rem;
     --bs-navbar-toggler-transition: box-shadow 0.15s ease-in-out;
+    z-index: 2;
     position: relative;
     display: flex;
     flex-wrap: wrap;

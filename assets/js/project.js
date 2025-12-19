@@ -1,46 +1,84 @@
-$( document ).ready(function() {
+$(document).ready(function () {
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const video = document.getElementById("video-bg");
-        const text = document.getElementById("gif-text");
+    const video = document.getElementById("video-bg");
+    const text  = document.getElementById("gif-text");
+    const $el   = $('#gif-text');
 
-        // Creamos un canvas para leer un frame del vídeo
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+    /* =========================
+       DOBLE CLICK → CAMBIAR VÍDEO
+    ========================= */
 
-        function updateTextColor() {
-            if (!video.videoWidth) return;
-
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            // Dibujar frame actual del vídeo
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Leer un píxel representativo (abajo izquierda)
-            const pixel = ctx.getImageData(50, canvas.height - 50, 1, 1).data;
-            const [r, g, b] = pixel;
-
-            // Calcular luminosidad
-            const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
-
-            // Fondo claro → texto marrón
-            // Fondo oscuro → texto blanco
-            if (brightness > 145) {
-                text.style.color = "#3F2212"; // marrón
-            } else {
-                text.style.color = "#FFFFFF"; // blanco
-            }
-        }
-
-        // Actualizar color 10 veces por segundo (rápido y eficiente)
-        setInterval(updateTextColor, 100);
+    $('#container-gif-home').on('dblclick', function (e) {
+        if ($(e.target).closest('#gif-text').length) return;
+        $('#video-input').trigger('click');
     });
 
+    /* =========================
+       CARGAR NUEVO VÍDEO
+    ========================= */
 
-    const $el = $('#gif-text');
+    $('#video-input').on('change', async function () {
+        const file = this.files[0];
+        if (!file) return;
 
-    // Doble click → activar edición
+        const id = $el.data('id');
+
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('file', file);
+
+        const response = await fetch('/i-architecture/api/edit_project', {
+            method: 'POST',
+            body: formData
+        });
+
+        const url = URL.createObjectURL(file);
+
+        $('#video-bg source').attr('src', url);
+        video.load();
+        video.play();
+    });
+
+    /* =========================
+       DETECCIÓN DE COLOR
+    ========================= */
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    let colorInterval = null;
+
+    function updateTextColor() {
+        if (!video.videoWidth || !video.videoHeight) return;
+
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const pixel = ctx.getImageData(50, canvas.height - 50, 1, 1).data;
+        const [r, g, b] = pixel;
+
+        const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+
+        text.style.color = brightness > 145 ? "#3F2212" : "#FFFFFF";
+    }
+
+    function startColorDetection() {
+        if (colorInterval) clearInterval(colorInterval);
+        colorInterval = setInterval(updateTextColor, 100);
+    }
+
+    video.addEventListener('loadeddata', startColorDetection);
+    video.addEventListener('play', startColorDetection);
+
+    // Arranque inicial
+    startColorDetection();
+
+    /* =========================
+       EDICIÓN DEL TEXTO
+    ========================= */
+
     $el.on('dblclick', function () {
         $(this).attr('contenteditable', 'true').focus();
     });
@@ -137,6 +175,8 @@ $( document ).ready(function() {
                 } else if (data.layout_type === 'two_images') {
                     $('#hdn-image-left').val(data.image_left);
                     $('#hdn-image-right').val(data.image_right);
+                } else if (data.layout_type === 'one_video') {
+                    $('#hdn-video-left').val(data.video_left);
                 }
 
                 $('#new-section-layout').val(data.layout_type).trigger('change');
@@ -264,6 +304,9 @@ $( document ).ready(function() {
             case "two_images":
                 $(CONTAINER_IMAGE_LEFT).show();
                 $(CONTAINER_IMAGE_RIGHT).show();
+                break;
+            case "one_video":
+                $(CONTAINER_VIDEO_LEFT).show();
                 break;
             default:
                 console.log("Lo lamentamos, por el momento no disponemos de " + layout + ".");

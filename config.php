@@ -38,11 +38,15 @@ $CFG->routes = [
         'method' => 'list',
         'has_params' => false,
     ],
-    '/file' => [
-        'visible' => false,
-        'controller' => 'FileController',
-        'method' => 'handle',
-        'has_params' => true,
+    '/login' => [
+        'controller' => 'AuthController',
+        'method' => 'login',
+        'has_params' => false
+    ],
+    '/logout' => [
+        'controller' => 'AuthController',
+        'method' => 'logout',
+        'has_params' => false
     ],
 ];
 

@@ -1,0 +1,30 @@
+<div class="bg-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+
+<div class="container">
+    <div class="avatar">👤</div>
+    <h2>Login</h2>
+    <form id="loginForm" method="POST">
+        <div class="input-group">
+            <input type="text" id="username" name="username" placeholder="Usuario" required>
+            <i>👤</i>
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" name="password" placeholder="Contraseñá" required>
+            <i>🔒</i>
+        </div>
+
+        {{#error}}
+            <div class="error-message" id="errorMessage">{{error}}</div>
+        {{/error}}
+
+        <button type="submit" class="btn">Login</button>
+        <div class="signup-link">
+            Acceso privado
+        </div>
+    </form>
+</div>

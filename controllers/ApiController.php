@@ -40,13 +40,53 @@ class ApiController
         }
 
         $id = $this->params['id'];
-        $name = $this->params['name'];
+        $name = $this->params['name'] ?? '';
 
-        $DB->execute('UPDATE `proyects` SET `name` = ? WHERE `id` = ?', [$name, $id]);
+        if (!empty($_FILES)) {
 
-        $response = [
-            'success' => true
-        ];
+            $DIR    = __DIR__ . "/../assets/images/proyects/p-$id/";
+            $DB_DIR = "proyects/p-$id/";
+
+            if (!is_dir($DIR)) {
+                mkdir($DIR, 0777, true);
+            }
+
+            // Obtener el archivo (primer input)
+            $file = reset($_FILES);
+
+            // Extensión original
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+            // Nombre final
+            $newName = "header.$extension";
+
+            // Ruta destino
+            $targetPath = $DIR . $newName;
+
+            // Mover archivo
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                // Guardar ruta en BD si hace falta
+                $dbPath = $DB_DIR . $newName;
+
+                $DB->execute('UPDATE `proyects` SET `header_source` = ? WHERE `id` = ?', [$dbPath, $id]);
+
+                $response = [
+                    'success' => true
+                ];
+            } else {
+                $response = [
+                    'success' => false
+                ];
+            }
+        }
+
+        if (!empty($name)) {
+            $DB->execute('UPDATE `proyects` SET `name` = ? WHERE `id` = ?', [$name, $id]);
+
+            $response = [
+                'success' => true
+            ];
+        }
         $this->send_response($response);
     }
 
@@ -223,6 +263,10 @@ class ApiController
             }
             if (!empty($items_raw['image2'])) {
                 $project_section->image_right = $items_raw['image2'];
+            }
+        } else if ($project_section->layout_type === 'one_video') {
+            if (!empty($items_raw['video1'])) {
+                $project_section->video_left = $items_raw['video1'];
             }
         }
 
@@ -719,6 +763,43 @@ class ApiController
                     WHERE id = $id
                 ");
             }
+        } else if ($this->params['layout'] === 'one_video') {
+            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+                $css['width'] = "100% !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'full-width-height') {
+                $css['width'] = "100% !important;";
+                $css['height'] = "100% !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+                $css['margin-left'] = "auto !important;";
+                $css['margin-right'] = "auto !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+                $css['margin-left'] = "auto !important;";
+            }
+
+            $section_id = $project_section;
+            $type = 'video';
+            $media_url = $files['mn-video-left']['path'] ?? $this->params['hdn-video-left'];
+            $css = json_encode($css);
+            if (!$action_update) {
+                $project_section_items_1 = $DB->insert("INSERT INTO project_section_items 
+                (section_id, `type`, content, media_url, settings, `order`, timecreated, timeupdated)
+                VALUES 
+                ($section_id, '$type', '', '$media_url', '$css', 1, $time, $time)
+            ");
+            } else {
+                $id = $DB->get_record("SELECT id FROM project_section_items WHERE section_id = ? AND type = 'video'", [$this->params['update_id']])->id;
+
+                $project_section_items_1 = $DB->execute("
+                    UPDATE project_section_items
+                    SET 
+                        `type`       = '$type',
+                        content      = '',
+                        media_url    = '$media_url',
+                        settings     = '$css',
+                        timeupdated  = $time
+                    WHERE id = $id
+                ");
+            }
         }
 
         $response = [
@@ -843,7 +924,7 @@ class ApiController
                         'type' => 'image',
                         'is_image' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-left']['base64']
+                        'media_url' => $files['mn-image-left']['base64'] ?? $this->params['hdn-image-left']
                     ],
                     [
                         'type' => 'text',
@@ -868,7 +949,7 @@ class ApiController
                         'type' => 'image',
                         'is_image' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-left']['base64']
+                        'media_url' => $files['mn-image-left']['base64'] ?? $this->params['hdn-image-left']
                     ],
                     [
                         'type' => 'text',
@@ -899,7 +980,7 @@ class ApiController
                         'type' => 'video',
                         'is_video' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-video-right']['base64']
+                        'media_url' => $files['mn-video-right']['base64'] ?? $this->params['hdn-video-right']
                     ],
                 ]
             ];
@@ -918,7 +999,7 @@ class ApiController
                         'type' => 'video',
                         'is_video' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-video-left']['base64']
+                        'media_url' => $files['mn-video-left']['base64'] ?? $this->params['hdn-video-left']
                     ],
                     [
                         'type' => 'text',
@@ -1004,6 +1085,32 @@ class ApiController
             ];
 
             $html = $renderer->render_template('sections/two_images', $temp_data);
+        } else if ($this->params['layout'] === 'one_video') {
+
+            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+                $css .= "width: 100% !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+                $css .= "display: block; margin-left: auto !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+                $css .= "margin-left: auto !important;";
+                $css .= "margin-right: auto !important;";
+            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+                $css .= "margin-left: auto !important;";
+            }
+
+            $temp_data = [
+                'id' => 'temp',
+                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                'items' => [
+                    [
+                        'type' => 'video',
+                        'is_video' => true,
+                        'css' => $css,
+                        'media_url' => $files['mn-video-left']['base64'] ?? $this->params['hdn-video-left']
+                    ]
+                ]
+            ];
+            $html = $renderer->render_template('sections/one_video', $temp_data);
         }
 
         $response = [

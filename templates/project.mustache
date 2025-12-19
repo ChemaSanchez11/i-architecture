@@ -1,12 +1,21 @@
 {{#project}}
     <div id="container-gif-home" class="d-flex">
-        <video id="video-bg" class="w-100 h-100" autoplay muted loop playsinline>
+        <video id="video-bg" class="w-100 h-100" autoplay muted loop playsinline style="max-width: 100%; max-height: 800px; object-fit: cover;">
             <source src="{{#print_img}}{{header_source}}{{/print_img}}" type="video/mp4">
             Tu navegador no soporta video en HTML5.
         </video>
 
-        <div id="gif-text" class="gif-text" data-id="{{id}}">{{name}}</div>
+        <div id="gif-text" class="gif-text" data-id="{{id}}">
+            {{name}}
+        </div>
     </div>
+
+    <input
+            type="file"
+            id="video-input"
+            accept="video/mp4,video/webm,video/ogg"
+            style="display:none"
+    />
 {{/project}}
 
 {{#sections}}
@@ -32,6 +41,9 @@
         {{#is_image_left_text_right}}
             {{> sections/image_left_text_right }}
         {{/is_image_left_text_right}}
+        {{#is_one_video}}
+            {{> sections/one_video }}
+        {{/is_one_video}}
     {{/layout_type}}
 {{/sections}}
 
@@ -77,6 +89,7 @@
                             <option value="two_images_left_large_right_small">Imagen Grande Izq | Imagen Pequeña Der</option>
                             <option value="one_image">Una imagen</option>
                             <option value="two_images">Dos imagenes</option>
+                            <option value="one_video">Un video</option>
                         </select>
                     </div>
 
