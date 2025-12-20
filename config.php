@@ -16,6 +16,8 @@ session_start();
 
 $CFG->proyect = 'i-architecture';
 
+$loguut_visible = !empty($_SESSION['user_id']) && !empty($_SESSION['role']) && $_SESSION['role'] === 'manager';
+
 $CFG->routes = [
     '/home' => [
         'name' => 'projects',
@@ -44,7 +46,9 @@ $CFG->routes = [
         'has_params' => false
     ],
     '/logout' => [
+        'name' => 'logout',
         'controller' => 'AuthController',
+        'visible' => $loguut_visible,
         'method' => 'logout',
         'has_params' => false
     ],

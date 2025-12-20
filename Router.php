@@ -76,24 +76,63 @@ class Router {
         $controller_path = "controllers/$controller.php";
 
         if (!file_exists($controller_path)) {
-            http_response_code(500);
-            echo "Controller file not found.";
+            http_response_code(404);
+            // Crear una instancia de la clase Renderer
+            $renderer = new Renderer();
+
+            // Establecer el título de la página
+            $renderer->set_title('404 | i-architecture');
+
+            // Agregar archivos de estilo
+            $renderer->add_styles(['home.css']);
+
+            // Renderizar la cabecera
+            $renderer->render_head();
+
+            // Renderizar el HTML completo (incluye head, nav y body)
+            $renderer->render_html('core/404', [], false);
             return;
         }
 
         require_once $controller_path;
 
         if (!class_exists($controller)) {
-            http_response_code(500);
-            echo "Controller class not found.";
+            http_response_code(404);
+            // Crear una instancia de la clase Renderer
+            $renderer = new Renderer();
+
+            // Establecer el título de la página
+            $renderer->set_title('404 | i-architecture');
+
+            // Agregar archivos de estilo
+            $renderer->add_styles(['home.css']);
+
+            // Renderizar la cabecera
+            $renderer->render_head();
+
+            // Renderizar el HTML completo (incluye head, nav y body)
+            $renderer->render_html('core/404', [], false);
             return;
         }
 
         $ctrl = new $controller();
 
         if (!method_exists($ctrl, $method)) {
-            http_response_code(500);
-            echo "Method not found in controller.";
+            http_response_code(404);
+            // Crear una instancia de la clase Renderer
+            $renderer = new Renderer();
+
+            // Establecer el título de la página
+            $renderer->set_title('404 | i-architecture');
+
+            // Agregar archivos de estilo
+            $renderer->add_styles(['home.css']);
+
+            // Renderizar la cabecera
+            $renderer->render_head();
+
+            // Renderizar el HTML completo (incluye head, nav y body)
+            $renderer->render_html('core/404', [], false);
             return;
         }
 

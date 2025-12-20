@@ -6,6 +6,7 @@
 }
 
 #container-gif-home {
+    transition: color 0.15s linear;
     position: relative;
     z-index: 1;
 }

@@ -39,3 +39,12 @@ CREATE TABLE modules (
 
 -- Índice compuesto para búsquedas eficientes
 CREATE INDEX idx_modules_project_visible_ordering ON modules (project_id, visible, ordering);
+
+
+CREATE TABLE users (
+                       id INT AUTO_INCREMENT PRIMARY KEY,
+                       username VARCHAR(50) NOT NULL UNIQUE,
+                       password VARCHAR(255) NOT NULL,
+                       role VARCHAR(50) DEFAULT 'user',
+                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

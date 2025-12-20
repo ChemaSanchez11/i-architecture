@@ -28,6 +28,10 @@ class ProjectController
         $renderer->add_styles(['project.css']);
         $renderer->add_scripts(['project.js']);
 
+        if (!empty($_SESSION['user_id']) && !empty($_SESSION['role']) && $_SESSION['role'] === 'manager') {
+            $renderer->add_scripts(['project_m.js']);
+        }
+
         // Render HEAD + NAV
         $renderer->render_head();
         $renderer->render_nav_transparent([
