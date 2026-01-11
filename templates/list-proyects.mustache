@@ -3,7 +3,7 @@
         <div class="grid-sizer"></div> <!-- columna de referencia -->
 
         {{#proyects}}
-            <div class="grid-item">
+            <div class="grid-item" data-id="{{id}}">
                 {{#source_image}}
                     <img src="{{#print_img}}{{source}}{{/print_img}}" alt="">
                 {{/source_image}}
@@ -14,9 +14,100 @@
                     </video>
                 {{/source_video}}
                 <a href="{{#link}}project/{{id}}{{/link}}" class="overlay-text">{{name}}</a>
+                {{#is_manager}}
+                    <button class="edit-project btn btn-primary" style="position:absolute; top:5px; right:5px;">Editar</button>
+                {{/is_manager}}
             </div>
         {{/proyects}}
     </div>
 </div>
+
+{{#is_manager}}
+    <div class="my-3 d-flex justify-content-center">
+        <a id="new" class="btn btn-success">Añadir</a>
+    </div>
+
+    <div id="modal-crop" class="rounded" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999;">
+        <div class="rounded-1 px-4 py-3" style="background:#fff; max-width:700px; margin:5% auto; position:relative;">
+
+            <div class="modal-body">
+                <form id="form-crop">
+                    <div class="mb-3">
+                        <label for="project-name" class="form-label">Nombre del proyecto</label>
+                        <input type="text" class="form-control" id="project-name" placeholder="Nombre del proyecto" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="input-image" class="form-label">Seleccionar imagen</label>
+                        <input class="form-control" type="file" id="input-image" accept="image/*">
+                    </div>
+
+                    <div class="mb-3 text-center" style="max-height:400px; overflow:hidden;">
+                        <img id="crop-image" style="max-width:100%; display:none;">
+                    </div>
+
+                    <div class="mb-3">
+                        <small>Alto actual: <span id="crop-height">0</span> px</small>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer justify-content-around">
+                <button type="button" class="btn btn-secondary" id="demo-crop">Demo</button>
+                <button type="button" class="btn btn-primary" id="save-crop">Guardar</button>
+                <button type="button" class="btn btn-danger" id="close-crop">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para editar proyecto existente -->
+    <div id="modal-edit" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999;">
+        <div style="background:#fff; max-width:700px; margin:5% auto; padding:15px; position:relative;">
+            <h3>Editar proyecto</h3>
+
+            <form id="edit-form-crop">
+                <div class="mb-3">
+                    <label for="edit-project-name" class="form-label">Nombre del proyecto</label>
+                    <input type="text" id="edit-project-name" class="form-control" placeholder="Nombre del proyecto" style="width:100%; margin-bottom:10px;" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="edit-input-image" class="form-label">Seleccionar imagen</label>
+                    <input type="file" id="edit-input-image" class="form-control" accept="image/*">
+                </div>
+
+                <div class="mb-3 text-center" style="max-height:400px; overflow:hidden;">
+                    <img id="crop-image" style="max-width:100%; display:none;">
+                </div>
+
+                <div class="mb-3">
+                    <small>Alto actual: <span id="crop-height">0</span> px</small>
+                </div>
+            </form>
+
+
+
+            <div style="max-height:400px; margin-top:10px;">
+                <img id="edit-crop-image" style="max-width:100%; display:none;">
+            </div>
+
+            <div style="margin-top:10px;">
+                <span>Alto actual: </span><span id="edit-crop-height">0</span> px
+            </div>
+
+            <br>
+
+            <div class="modal-footer justify-content-around">
+                <button type="button" class="btn btn-secondary" id="edit-demo">Demo</button>
+                <button type="button" class="btn btn-primary" id="edit-save">Guardar</button>
+                <button type="button" class="btn btn-danger" id="edit-close">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+{{/is_manager}}
+
 
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>

@@ -27,6 +27,141 @@ class ApiController
         exit();
     }
 
+    public function new_project() {
+
+        global $DB;
+
+        if (empty($this->params['name'])) {
+            $response = [
+                'success' => false,
+                'output' => 'Faltan parametros'
+            ];
+            $this->send_response($response, 400);
+        }
+
+        $name = $this->params['name'] ?? 'temp';
+
+        $response = [
+            'success' => false
+        ];
+
+        if (!empty($_FILES)) {
+
+            $DIR    = __DIR__ . "/../assets/images/proyects/";
+            $DB_DIR = "proyects/";
+
+            if (!is_dir($DIR)) {
+                mkdir($DIR, 0777, true);
+            }
+
+            // Obtener el archivo (primer input)
+            $file = reset($_FILES);
+
+            // Extensión original
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+            // MIME type reportado por el navegador
+            $mimeType = $file['type'];
+
+            $type = 'image';
+            if (str_starts_with($mimeType, 'video/')) {
+                $type = 'video';
+            }
+
+            // Nombre final
+            $newName =  uniqid('p-', ) . ".$extension";
+
+            // Ruta destino
+            $targetPath = $DIR . $newName;
+
+            $time = time();
+
+            // Mover archivo
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                // Guardar ruta en BD si hace falta
+                $dbPath = $DB_DIR . $newName;
+
+                $DB->insert("INSERT INTO proyects 
+                    (`name`, source, source_type, timecreated, timeupdated)
+                    VALUES 
+                    ('$name', '$dbPath', '$type', $time, $time)
+                ");
+
+                $response = [
+                    'success' => true
+                ];
+            }
+        }
+
+        $this->send_response($response);
+    }
+
+    public function update_project() {
+
+        global $DB;
+
+        if (empty($this->params['id'])) {
+            $response = [
+                'success' => false,
+                'output' => 'Faltan parametros'
+            ];
+            $this->send_response($response, 400);
+        }
+
+        $id = $this->params['id'];
+        $name = $this->params['name'] ?? 'temp';
+
+        $response = [
+            'success' => false
+        ];
+
+        if (!empty($_FILES)) {
+
+            $DIR    = __DIR__ . "/../assets/images/proyects/";
+            $DB_DIR = "proyects/";
+
+            if (!is_dir($DIR)) {
+                mkdir($DIR, 0777, true);
+            }
+
+            // Obtener el archivo (primer input)
+            $file = reset($_FILES);
+
+            // Extensión original
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+            // MIME type reportado por el navegador
+            $mimeType = $file['type'];
+
+            $type = 'image';
+            if (str_starts_with($mimeType, 'video/')) {
+                $type = 'video';
+            }
+
+            // Nombre final
+            $newName =  "proyect-$id.$extension";
+
+            // Ruta destino
+            $targetPath = $DIR . $newName;
+
+            $time = time();
+
+            // Mover archivo
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                // Guardar ruta en BD si hace falta
+                $dbPath = $DB_DIR . $newName;
+
+                $DB->execute('UPDATE `proyects` SET `name` = ?, `source` = ?, source_type = ?, timeupdated = ? WHERE `id` = ?', [$name, $dbPath, $type, $time, $id]);
+
+                $response = [
+                    'success' => true
+                ];
+            }
+        }
+
+        $this->send_response($response);
+    }
+
     public function edit_project() {
 
         global $DB;

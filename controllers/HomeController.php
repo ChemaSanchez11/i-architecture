@@ -19,8 +19,12 @@ class HomeController
         // Agregar archivos de estilo
         $renderer->add_styles(['home.css']);
 
+        $is_manager = false;
         // Agregar archivos de script con parámetros adicionales
-//        $renderer->add_scripts('script.js');
+        if (!empty($_SESSION['user_id']) && !empty($_SESSION['role']) && $_SESSION['role'] === 'manager') {
+            $is_manager = true;
+            $renderer->add_scripts(['main_m.js']);
+        }
 
         // Renderizar la cabecera
         $renderer->render_head();
@@ -42,7 +46,7 @@ class HomeController
         }
 
         // Renderizar el HTML completo (incluye head, nav y body)
-        $renderer->render_html('home', ['proyects' => $proyects]);
+        $renderer->render_html('home', ['proyects' => $proyects, 'is_manager' => $is_manager]);
 
     }
 }
