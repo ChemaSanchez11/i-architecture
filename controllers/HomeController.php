@@ -34,7 +34,7 @@ class HomeController
             'routes' => array_values($CFG->routes),
         ]);
 
-        $proyects = $DB->get_records('SELECT id, name, source, source_type FROM proyects WHERE active = 1');
+        $proyects = $DB->get_records('SELECT id, name, source, source_type, cover_project_id FROM proyects WHERE active = 1');
 
         foreach ($proyects as &$proyect) {
             $proyect->source_image = true;

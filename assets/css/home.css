@@ -1,3 +1,36 @@
+.custom-select-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+#edit-cover-project {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.custom-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background: #fff;
+    z-index: 999;
+    display: none;
+}
+
+.custom-select-dropdown div {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.custom-select-dropdown div:hover {
+    background: #f0f0f0;
+}
+
 #container-gif-home img {
     height: calc(100vh - 101px);
 }

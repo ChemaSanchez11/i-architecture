@@ -109,6 +109,7 @@ class ApiController
         }
 
         $id = $this->params['id'];
+        $cover_id = $this->params['cover_id'] ?? null;
         $name = $this->params['name'] ?? 'temp';
 
         $response = [
@@ -151,12 +152,28 @@ class ApiController
                 // Guardar ruta en BD si hace falta
                 $dbPath = $DB_DIR . $newName;
 
-                $DB->execute('UPDATE `proyects` SET `name` = ?, `source` = ?, source_type = ?, timeupdated = ? WHERE `id` = ?', [$name, $dbPath, $type, $time, $id]);
+                if (!empty($cover_id)) {
+                    $DB->execute('UPDATE `proyects` SET `name` = ?, `source` = ?, source_type = ?, cover_project_id = ?, timeupdated = ? WHERE `id` = ?', [$name, $dbPath, $type, $cover_id, $time, $id]);
+                } else {
+                    $DB->execute('UPDATE `proyects` SET `name` = ?, `source` = ?, source_type = ?, timeupdated = ? WHERE `id` = ?', [$name, $dbPath, $type, $time, $id]);
+                }
 
                 $response = [
                     'success' => true
                 ];
             }
+        } else {
+            $time = time();
+
+            if (!empty($cover_id)) {
+                $DB->execute('UPDATE `proyects` SET `name` = ?, cover_project_id = ?, timeupdated = ? WHERE `id` = ?', [$name, $cover_id, $time, $id]);
+            } else {
+                $DB->execute('UPDATE `proyects` SET `name` = ?, timeupdated = ? WHERE `id` = ?', [$name, $time, $id]);
+            }
+
+            $response = [
+                'success' => true
+            ];
         }
 
         $this->send_response($response);

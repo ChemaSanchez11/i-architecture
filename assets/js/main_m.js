@@ -6,325 +6,495 @@ $(function () {
     let croppedBlob = null;
     let msnry = null;
     let editingItem = null;
+    let editFileMemory = null;
 
     // Overlay de carga para demo
     const $loadingOverlay = $('<div id="loading-demo" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; z-index:9999; display:none;">Generando demo...</div>');
     $('body').append($loadingOverlay);
 
-    // Abrir modal de edición
-    $(document).on('click', '.edit-project', function () {
-        editingItem = $(this).closest('.grid-item');
-        const imgSrc = editingItem.find('img').attr('src');
-        const name = editingItem.find('.overlay-text').text();
+    const $input = $('#edit-cover-project');
+    const $dropdown = $('#custom-select-dropdown');
 
-        $('#edit-project-name').val(name);
-        $('#edit-crop-image').attr('src', imgSrc).show();
-        $('#edit-crop-height').text($('#edit-crop-image').height());
-        $('#edit-input-image').val('');
-        $('#modal-edit').fadeIn(200);
-
-        if (editCropper) editCropper.destroy();
-
-        editCropper = new Cropper(document.getElementById('edit-crop-image'), {
-            viewMode: 1,
-            dragMode: 'move',
-            autoCropArea: 1,
-            responsive: true,
-            movable: true,
-            zoomable: true,
-            rotatable: false,
-            scalable: false,
-            aspectRatio: NaN,
-            crop(event) {
-                $('#edit-crop-height').text(Math.round(event.detail.height));
-            }
+    function showDropdown(filtered) {
+        $dropdown.empty();
+        filtered.forEach(p => {
+            $dropdown.append(`<div data-id="${p.id}">${p.name}</div>`);
         });
+        $dropdown.show();
+    }
+
+// Al escribir
+    $input.on('input', function() {
+        const val = $(this).val().toLowerCase();
+        const filtered = window.projects_list.filter(p => p.name.toLowerCase().includes(val));
+        showDropdown(filtered);
     });
 
-    // Cambiar imagen dentro del modal de edición
+// Al hacer foco, mostrar todos
+    $input.on('focus', function() {
+        showDropdown(window.projects_list);
+    });
+
+// Seleccionar opción
+    $dropdown.on('click', 'div', function() {
+        const name = $(this).text();
+        const id = $(this).data('id');
+        $input.val(name);
+        $input.data('id', id); // Guardar id asociado
+        $dropdown.hide();
+    });
+
+// Cerrar dropdown si clic fuera
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.custom-select-wrapper').length) {
+            $dropdown.hide();
+        }
+    });
+
+
+    /* =========================
+   EDITAR PROYECTO
+========================== */
+
+    $(document).on('click', '.edit-project', function () {
+        editingItem = $(this).closest('.grid-item');
+
+        const img = editingItem.find('img');
+        const video = editingItem.find('video');
+        const name = editingItem.find('.overlay-text').text().trim();
+
+        $('#edit-project-name').val(name);
+        $('#edit-input-image').val('');
+        $('#edit-crop-height').text('0');
+
+        if (editCropper) {
+            editCropper.destroy();
+            editCropper = null;
+        }
+
+        // === IMAGEN ===
+        if (img.length) {
+            $('#edit-video').hide();
+
+            const imgEl = document.getElementById('edit-crop-image');
+            imgEl.src = img.attr('src');
+            imgEl.style.display = 'block';
+
+            editCropper = new Cropper(imgEl, {
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 1,
+                zoomable: true,
+                aspectRatio: NaN,
+                crop(e) {
+                    $('#edit-crop-height').text(Math.round(e.detail.height));
+                }
+            });
+        }
+
+        // === VÍDEO ===
+        if (video.length) {
+            $('#edit-crop-image').hide();
+            $('#edit-crop-height').text('—');
+
+            const videoEl = document.getElementById('edit-video');
+            videoEl.src = video.find('source').attr('src') || video.attr('src');
+            videoEl.style.display = 'block';
+        }
+
+        $('#modal-edit').fadeIn(200);
+    });
+
+
+    /* =========================
+       CAMBIAR ARCHIVO EN EDICIÓN
+    ========================== */
+
     $('#edit-input-image').on('change', function (e) {
         const file = e.target.files[0];
         if (!file) return;
 
+        editFileMemory = null;
+        editFileMemory = file;
+
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+
+        if (editCropper) {
+            editCropper.destroy();
+            editCropper = null;
+        }
+
         const reader = new FileReader();
         reader.onload = function () {
-            const img = document.getElementById('edit-crop-image');
-            img.src = reader.result;
-            img.style.display = 'block';
 
-            if (editCropper) editCropper.destroy();
-            editCropper = new Cropper(img, {
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 1,
-                responsive: true,
-                movable: true,
-                zoomable: true,
-                rotatable: false,
-                scalable: false,
-                aspectRatio: NaN,
-                crop(event) {
-                    $('#edit-crop-height').text(Math.round(event.detail.height));
-                }
-            });
+            if (isImage) {
+                $('#edit-video').hide();
+
+                const img = document.getElementById('edit-crop-image');
+                img.src = reader.result;
+                img.style.display = 'block';
+
+                editCropper = new Cropper(img, {
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                    zoomable: true,
+                    aspectRatio: NaN,
+                    crop(e) {
+                        $('#edit-crop-height').text(Math.round(e.detail.height));
+                    }
+                });
+            }
+
+            if (isVideo) {
+                $('#edit-crop-image').hide();
+                $('#edit-crop-height').text('—');
+
+                const video = document.getElementById('edit-video');
+                video.src = reader.result;
+                video.style.display = 'block';
+            }
         };
+
         reader.readAsDataURL(file);
     });
 
-    // Demo: reemplazar imagen en el grid
+
+    /* =========================
+       DEMO EDICIÓN
+    ========================== */
+
     $('#edit-demo').on('click', function () {
-        if (!editCropper || !editingItem) return;
+        if (!editingItem) return;
 
-        $('#modal-edit').fadeOut(200);
-        $loadingOverlay.fadeIn(200);
+        const projectName = $('#edit-project-name').val().trim() || '(Demo)';
 
-        setTimeout(() => {
-            const canvas = editCropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
-            const dataURL = canvas.toDataURL('image/png');
-            const projectName = $('#edit-project-name').val().trim() || '(Demo)';
+        // === IMAGEN ===
+        if (editCropper) {
+            const canvas = editCropper.getCroppedCanvas();
+            let img = editingItem.find('img');
 
-            editingItem.find('img').attr('src', dataURL);
-            editingItem.find('.overlay-text').text(projectName);
-
-            // Recalcular Masonry
-            if (typeof msnry !== 'undefined') {
-                editingItem.find('img')[0].onload = () => msnry.layout();
+            if (!img.length) {
+                img = $('<img style="width:100%;">').prependTo(editingItem);
             }
 
-            $loadingOverlay.fadeOut(200);
+            img.attr('src', canvas.toDataURL('image/png'));
+            editingItem.find('video').hide();
 
-            // Reset cropper y modal
-            editCropper.destroy();
-            editCropper = null;
-            $('#edit-crop-image').hide();
-            $('#edit-project-name').val('');
-            $('#edit-input-image').val('');
-            $('#edit-crop-height').text('0');
-            editingItem = null;
-        }, 100);
-    });
+        } else {
+            // === VÍDEO ===
+            const file = $('#edit-input-image')[0].files[0];
+            if (file && file.type.startsWith('video/')) {
+                let video = editingItem.find('video');
+                if (!video.length) {
+                    video = $(`
+                    <video controls style="width:100%;">
+                        <source>
+                    </video>
+                `).prependTo(editingItem);
+                }
 
-    // Guardar cambios al backend
-    $('#edit-save').on('click', function () {
-        if (!editCropper || !editingItem) return;
-
-        const projectName = $('#edit-project-name').val().trim();
-        if (!projectName) {
-            alert('Introduce un nombre para el proyecto');
-            return;
+                video.show();
+                video.find('source').attr('src', URL.createObjectURL(file)).attr('type', file.type);
+                video[0].load();
+                editingItem.find('img').hide();
+            }
         }
 
-        const canvas = editCropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
+        editingItem.find('.overlay-text').text(projectName);
 
-        canvas.toBlob(blob => {
-            const formData = new FormData();
-            formData.append('image', blob, 'project.png');
-            formData.append('name', projectName);
-            formData.append('id', editingItem.data('id')); // id del proyecto para backend
+        // Recalcular Masonry solo para este item
+        if (msnry) msnry.layout();
 
-            $.ajax({
-                url: '/i-architecture/api/update_project',
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function () {
-                    // Actualizar imagen y nombre sin recargar
-                    editingItem.find('img').attr('src', URL.createObjectURL(blob));
-                    editingItem.find('.overlay-text').text(projectName);
-                    if (typeof msnry !== 'undefined') msnry.layout();
-
-                    // Reset cropper y cerrar modal
-                    editCropper.destroy();
-                    editCropper = null;
-                    $('#edit-crop-image').hide();
-                    $('#edit-project-name').val('');
-                    $('#edit-input-image').val('');
-                    $('#edit-crop-height').text('0');
-                    editingItem = null;
-                    $('#modal-edit').fadeOut(200);
-                },
-                error: function () {
-                    alert('Error al actualizar el proyecto');
-                }
-            });
-        });
+        $('#modal-edit').fadeOut(200);
     });
 
-    // Cerrar modal edición
+
+    /* =========================
+       GUARDAR EDICIÓN BACKEND
+    ========================== */
+
+    $('#edit-save').on('click', function () {
+        if (!editingItem) return;
+
+        const projectName = $('#edit-project-name').val().trim();
+        if (!projectName) return alert('Introduce un nombre');
+
+        const formData = new FormData();
+        formData.append('id', editingItem.data('id'));
+        formData.append('name', projectName);
+
+        const coverId = $('#edit-cover-project').val() || null;
+        if (coverId) formData.append('cover_id', coverId);
+
+        // === IMAGEN ===
+        if (editCropper) {
+            editCropper.getCroppedCanvas().toBlob(blob => {
+                formData.append('file', blob, 'project.png');
+                sendEdit(formData);
+            });
+            return; // importante: salir, ya se envía en el callback
+        }
+
+        // === VÍDEO ===
+        if (editFileMemory && editFileMemory.type.startsWith('video/')) {
+            formData.append('file', editFileMemory);
+        }
+
+        sendEdit(formData);
+
+        editFileMemory = null;
+    });
+
+
+    function sendEdit(formData) {
+        $.ajax({
+            url: '/i-architecture/api/update_project',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success(response) {
+                // === ACTUALIZAR DOM ===
+                const projectName = $('#edit-project-name').val().trim() || '(Demo)';
+                editingItem.find('.overlay-text').text(projectName);
+
+                // Si hay cropper, actualizar imagen
+                if (editCropper) {
+                    const canvas = editCropper.getCroppedCanvas();
+                    let img = editingItem.find('img');
+                    if (!img.length) {
+                        img = $('<img style="width:100%;">').prependTo(editingItem);
+                    }
+                    img.attr('src', canvas.toDataURL('image/png')).show();
+                    editingItem.find('video').hide();
+                }
+
+                // Si hay video en memoria, actualizar video
+                else if (editFileMemory && editFileMemory.type.startsWith('video/')) {
+                    let video = editingItem.find('video');
+                    if (!video.length) {
+                        video = $(`
+                        <video controls style="width:100%;">
+                            <source>
+                        </video>
+                    `).prependTo(editingItem);
+                    }
+                    video.show();
+                    video.find('source')
+                        .attr('src', URL.createObjectURL(editFileMemory))
+                        .attr('type', editFileMemory.type);
+                    video[0].load();
+                    editingItem.find('img').hide();
+                }
+
+                // Recalcular Masonry
+                if (msnry) msnry.layout();
+
+                // Limpiar cropper y memoria
+                if (editCropper) {
+                    editCropper.destroy();
+                    editCropper = null;
+                }
+                editFileMemory = null;
+                $('#edit-crop-image, #edit-video').hide();
+                $('#edit-project-name').val('');
+                $('#edit-input-image').val('');
+                $('#edit-crop-height').text('0');
+                $('#modal-edit').fadeOut(200);
+
+                editingItem = null;
+            },
+            error() {
+                alert('Error al actualizar');
+            }
+        });
+    }
+
+
+
+    /* =========================
+       CERRAR MODAL EDICIÓN
+    ========================== */
+
     $('#edit-close').on('click', function () {
         if (editCropper) editCropper.destroy();
         editCropper = null;
-        $('#edit-crop-image').hide();
+        editFileMemory = null;
+
+        $('#edit-crop-image, #edit-video').hide();
         $('#edit-project-name').val('');
         $('#edit-input-image').val('');
         $('#edit-crop-height').text('0');
         editingItem = null;
+
         $('#modal-edit').fadeOut(200);
     });
 
-    // Abrir modal
-    $('#new').on('click', function () {
-        $('#modal-crop').fadeIn(200);
-    });
+    /* =========================
+       NUEVO PROYECTO
+    ========================== */
 
-    // Cerrar modal
-    $('#close-crop').on('click', function () {
-        if (cropper) cropper.destroy();
-        cropper = null;
-        $('#crop-image').hide();
-        $('#modal-crop').fadeOut(200);
-        $('#crop-height').text('0');
-        $('#input-image').val('');
-        $('#project-name').val('');
-    });
+    $('#new').on('click', () => $('#modal-crop').fadeIn(200));
 
-    // Cargar imagen y crear cropper
+    $('#close-crop').on('click', resetNewModal);
+
     $('#input-image').on('change', function (e) {
         const file = e.target.files[0];
         if (!file) return;
 
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+
         const reader = new FileReader();
         reader.onload = function () {
-            const img = document.getElementById('crop-image');
-            img.src = reader.result;
-            img.style.display = 'block';
+            if (isImage) {
+                $('#crop-video').hide();
+                const img = document.getElementById('crop-image');
+                img.src = reader.result;
+                img.style.display = 'block';
 
-            if (cropper) cropper.destroy();
+                cropper = new Cropper(img, {
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                    zoomable: true,
+                    aspectRatio: NaN,
+                    crop(e) {
+                        $('#crop-height').text(Math.round(e.detail.height));
+                    }
+                });
 
-            cropper = new Cropper(img, {
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 1,
-                responsive: true,
-                movable: true,
-                zoomable: true,
-                rotatable: false,
-                scalable: false,
-                aspectRatio: NaN,
-                crop(event) {
-                    const height = Math.round(event.detail.height);
-                    document.getElementById('crop-height').textContent = height;
-                }
-            });
+            } else if (isVideo) {
+                $('#crop-image').hide();
+                $('#crop-height').text('—');
+                const video = document.getElementById('crop-video');
+                video.src = reader.result;
+                video.style.display = 'block';
+            }
         };
         reader.readAsDataURL(file);
     });
 
-    // === Botón DEMO ===
     $('#demo-crop').on('click', function () {
-        if (!cropper) return;
+        const file = $('#input-image')[0].files[0];
+        if (!file) return;
 
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
         const projectName = $('#project-name').val().trim() || '(Demo)';
 
         $('#modal-crop').fadeOut(200);
         $loadingOverlay.fadeIn(200);
 
         setTimeout(() => {
-            const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
-            const dataURL = canvas.toDataURL('image/png');
+            let mediaHTML = '';
+
+            if (isImage && cropper) {
+                const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
+                mediaHTML = `<img src="${canvas.toDataURL('image/png')}" style="width:100%;">`;
+            }
+
+            if (isVideo) {
+                const url = URL.createObjectURL(file);
+                mediaHTML = `
+                    <video controls style="width:100%;">
+                        <source src="${url}" type="${file.type}">
+                    </video>`;
+            }
 
             const item = document.createElement('div');
             item.className = 'grid-item';
             item.innerHTML = `
-                <img src="${dataURL}" style="width:100%; display:block;">
+                ${mediaHTML}
                 <a href="#" class="overlay-text">${projectName}</a>
             `;
 
-            const grid = document.querySelector('.grid-proyects');
-            grid.appendChild(item);
+            document.querySelector('.grid-proyects').appendChild(item);
 
-            // Esperar a que la imagen se cargue antes de refrescar Masonry
-            const img = item.querySelector('img');
-            img.onload = function () {
-                if (msnry) {
-                    msnry.appended(item);
-                    msnry.layout();
-                }
-            };
+            if (msnry) {
+                msnry.appended(item);
+                msnry.layout();
+            }
 
             $loadingOverlay.fadeOut(200);
-
-            // Reset cropper
-            // cropper.destroy();
-            // cropper = null;
-            // $('#crop-image').hide();
-            // $('#project-name').val('');
-            // $('#input-image').val('');
-            // $('#crop-height').text('0');
         }, 100);
     });
 
-    // Guardar recorte y enviar
     $('#save-crop').on('click', function () {
-        if (!cropper) return;
+        const file = $('#input-image')[0].files[0];
+        if (!file) return;
 
         const projectName = $('#project-name').val().trim();
-        if (!projectName) {
-            alert('Introduce un nombre para el proyecto');
-            return;
+        if (!projectName) return alert('Introduce un nombre');
+
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+
+        const formData = new FormData();
+        formData.append('name', projectName);
+
+        if (isImage && cropper) {
+            cropper.getCroppedCanvas().toBlob(blob => {
+                formData.append('file', blob, 'project.png');
+                sendNew(formData);
+            });
         }
 
-        const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
-
-        canvas.toBlob(blob => {
-            croppedBlob = blob;
-
-            const formData = new FormData();
-            formData.append('image', blob, 'project.png');
-            formData.append('name', projectName);
-
-            $.ajax({
-                url: '/i-architecture/api/new_project',
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function () {
-                    location.reload();
-                },
-                error: function () {
-                    alert('Error al guardar el proyecto');
-                }
-            });
-        });
+        if (isVideo) {
+            formData.append('file', file);
+            sendNew(formData);
+        }
     });
 
-    // Inicializar Masonry después de cargar la ventana
+    function sendNew(formData) {
+        $.ajax({
+            url: '/i-architecture/api/new_project',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: () => location.reload(),
+            error: () => alert('Error al guardar')
+        });
+    }
+
+    function resetNewModal() {
+        if (cropper) cropper.destroy();
+        cropper = null;
+        $('#crop-image, #crop-video').hide();
+        $('#project-name').val('');
+        $('#input-image').val('');
+        $('#crop-height').text('0');
+        $('#modal-crop').fadeOut(200);
+    }
+
+    /* =========================
+       MASONRY
+    ========================== */
+
     $(window).on('load', function () {
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(1 - elapsed, 0);
-
         setTimeout(() => {
-            $('#video-container-loading').fadeOut(500);
-            $('main#page').fadeIn(100);
+            if (typeof Masonry !== 'undefined') {
+                msnry = new Masonry('.grid-proyects', {
+                    itemSelector: '.grid-item',
+                    percentPosition: true
+                });
 
-            setTimeout(() => {
-                if (typeof Masonry != 'undefined') {
-                    msnry = new Masonry('.grid-proyects', {
-                        itemSelector: '.grid-item',
-                        columnWidth: '.grid-sizer',
-                        percentPosition: true,
-                        gutter: 0
-                    });
+                document.querySelectorAll('.grid-proyects img').forEach(i => {
+                    i.onload = () => msnry.layout();
+                });
 
-                    // Recalcular después de que los vídeos carguen
-                    const videos = document.querySelectorAll(".grid-proyects video");
-                    videos.forEach(video => {
-                        video.addEventListener("loadedmetadata", () => {
-                            msnry.layout();
-                        });
-                    });
-
-                    // Recalcular después de que las imágenes iniciales carguen
-                    const imgs = document.querySelectorAll(".grid-proyects img");
-                    imgs.forEach(img => {
-                        img.onload = function () {
-                            msnry.layout();
-                        };
-                    });
-                }
-            }, 310);
-        }, remaining);
+                document.querySelectorAll('.grid-proyects video').forEach(v => {
+                    v.addEventListener('loadedmetadata', () => msnry.layout());
+                });
+            }
+        }, 300);
     });
 });

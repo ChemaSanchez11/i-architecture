@@ -13,7 +13,12 @@
                         Tu navegador no soporta video en HTML5.
                     </video>
                 {{/source_video}}
-                <a href="{{#link}}project/{{id}}{{/link}}" class="overlay-text">{{name}}</a>
+                <a
+                    href="{{#link}}project/{{#cover_project_id}}{{cover_project_id}}{{/cover_project_id}}{{^cover_project_id}}{{id}}{{/cover_project_id}}{{/link}}"
+                    class="overlay-text"
+                >
+                    {{name}}
+                </a>
                 {{#is_manager}}
                     <button class="edit-project btn btn-primary" style="position:absolute; top:5px; right:5px;">Editar</button>
                 {{/is_manager}}
@@ -27,7 +32,7 @@
         <a id="new" class="btn btn-success">Añadir</a>
     </div>
 
-    <div id="modal-crop" class="rounded" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999;">
+    <div id="modal-crop" class="rounded" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999; overflow: auto">
         <div class="rounded-1 px-4 py-3" style="background:#fff; max-width:700px; margin:5% auto; position:relative;">
 
             <div class="modal-body">
@@ -39,7 +44,7 @@
 
                     <div class="mb-3">
                         <label for="input-image" class="form-label">Seleccionar imagen</label>
-                        <input class="form-control" type="file" id="input-image" accept="image/*">
+                        <input class="form-control" type="file" id="input-image" accept="image/*,video/*">
                     </div>
 
                     <div class="mb-3 text-center" style="max-height:400px; overflow:hidden;">
@@ -60,7 +65,7 @@
         </div>
     </div>
     <!-- Modal para editar proyecto existente -->
-    <div id="modal-edit" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999;">
+    <div id="modal-edit" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999; overflow: auto">
         <div style="background:#fff; max-width:700px; margin:5% auto; padding:15px; position:relative;">
             <h3>Editar proyecto</h3>
 
@@ -70,13 +75,20 @@
                     <input type="text" id="edit-project-name" class="form-control" placeholder="Nombre del proyecto" style="width:100%; margin-bottom:10px;" required>
                 </div>
 
-                <div class="mb-3">
-                    <label for="edit-input-image" class="form-label">Seleccionar imagen</label>
-                    <input type="file" id="edit-input-image" class="form-control" accept="image/*">
+                <label for="edit-cover-project">Referencia:</label>
+                <div class="custom-select-wrapper">
+                    <input type="text" id="edit-cover-project" placeholder="Proyecto" autocomplete="off">
+                    <div id="custom-select-dropdown" class="custom-select-dropdown"></div>
                 </div>
 
-                <div class="mb-3 text-center" style="max-height:400px; overflow:hidden;">
+                <div class="mb-3">
+                    <label for="edit-input-image" class="form-label">Seleccionar imagen</label>
+                    <input type="file" id="edit-input-image" class="form-control" accept="image/*,video/*">
+                </div>
+
+                <div class="mb-3 text-center">
                     <img id="crop-image" style="max-width:100%; display:none;">
+                    <video id="crop-video" controls style="display:none; max-width:100%;"></video>
                 </div>
 
                 <div class="mb-3">
@@ -84,10 +96,9 @@
                 </div>
             </form>
 
-
-
-            <div style="max-height:400px; margin-top:10px;">
+            <div style="margin-top:10px;">
                 <img id="edit-crop-image" style="max-width:100%; display:none;">
+                <video id="edit-video" controls style="display:none; max-width:100%;"></video>
             </div>
 
             <div style="margin-top:10px;">
@@ -107,6 +118,15 @@
 
     <link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <script>
+        // Hardcoded JSON list
+        window.projects_list = [];
+
+            {{#proyects}}
+            window.projects_list.push({ id: {{id}}, name: "{{name}}" });
+            {{/proyects}}
+    </script>
 {{/is_manager}}
 
 
