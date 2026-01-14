@@ -15,7 +15,7 @@
                 {{#items}}
                     {{#type}}
                         {{#is_image}}
-                            <img src="{{#print_img}}{{media_url}}{{/print_img}}" style="{{css}}" class="img-fluid mx-auto" />
+                            <img data-src="{{#print_img}}{{media_url}}{{/print_img}}" class="img-fluid lazy-section mx-auto" style="{{css}}"/>
                         {{/is_image}}
                     {{/type}}
                 {{/items}}

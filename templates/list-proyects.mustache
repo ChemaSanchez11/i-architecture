@@ -1,30 +1,43 @@
-<div style="margin-top: 8px; overflow: hidden;">
-    <div class="grid-proyects">
-        <div class="grid-sizer"></div> <!-- columna de referencia -->
+<div class="grid-proyects">
+    <div class="grid-sizer"></div>
 
-        {{#proyects}}
-            <div class="grid-item" data-id="{{id}}">
-                {{#source_image}}
-                    <img src="{{#print_img}}{{source}}{{/print_img}}" alt="">
-                {{/source_image}}
-                {{#source_video}}
-                    <video autoplay muted loop playsinline>
-                        <source src="{{#print_img}}{{source}}{{/print_img}}" type="video/mp4">
-                        Tu navegador no soporta video en HTML5.
-                    </video>
-                {{/source_video}}
-                <a
+    {{#proyects}}
+        <div class="grid-item" data-id="{{id}}">
+
+            {{#source_image}}
+                <img
+                        data-src="{{#print_img}}{{source}}{{/print_img}}"
+                        alt="{{name}}"
+                        loading="lazy"
+                        class="lazy-media"
+                >
+            {{/source_image}}
+
+            {{#source_video}}
+                <video
+                        muted
+                        loop
+                        playsinline
+                        preload="metadata"
+                        class="lazy-media"
+                >
+                    <source data-src="{{#print_img}}{{source}}{{/print_img}}" type="video/mp4">
+                </video>
+            {{/source_video}}
+
+            <a
                     href="{{#link}}project/{{#cover_project_id}}{{cover_project_id}}{{/cover_project_id}}{{^cover_project_id}}{{id}}{{/cover_project_id}}{{/link}}"
                     class="overlay-text"
-                >
-                    {{name}}
-                </a>
-                {{#is_manager}}
-                    <button class="edit-project btn btn-primary" style="position:absolute; top:5px; right:5px;">Editar</button>
-                {{/is_manager}}
-            </div>
-        {{/proyects}}
-    </div>
+            >
+                {{name}}
+            </a>
+
+            {{#is_manager}}
+                <button class="edit-project btn btn-primary" style="position:absolute; top:5px; right:5px;">Editar</button>
+            {{/is_manager}}
+
+        </div>
+    {{/proyects}}
 </div>
 
 {{#is_manager}}
@@ -131,3 +144,4 @@
 
 
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>

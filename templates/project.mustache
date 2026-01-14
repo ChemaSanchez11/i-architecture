@@ -198,3 +198,62 @@
 >
     Crear primera sección
 </button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const lazyImages = Array.from(document.querySelectorAll('.lazy-section'));
+        let currentIndex = 0;
+        const batchSize = 5; // cuántas imágenes cargar a la vez
+
+        function loadNextBatch() {
+            const batch = lazyImages.slice(currentIndex, currentIndex + batchSize);
+            if (batch.length === 0) return;
+
+            batch.forEach(img => {
+                if (!img.src) {
+                    img.src = img.dataset.src;
+
+                    // Opcional: esperar a que cargue antes de pasar al siguiente batch
+                    img.onload = () => {};
+                    img.onerror = () => {};
+                }
+            });
+
+            currentIndex += batchSize;
+
+            // Llama al siguiente batch con un pequeño delay para que vaya cargando poco a poco
+            if (currentIndex < lazyImages.length) {
+                setTimeout(loadNextBatch, 100);
+            }
+        }
+
+        // =========================
+        // Lazy load solo cuando entra en viewport
+        // =========================
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const el = entry.target;
+                if (!entry.isIntersecting) return;
+
+                if (!el.src) {
+                    el.src = el.dataset.src;
+                }
+
+                // Una vez cargada, dejamos de observar
+                observer.unobserve(el);
+            });
+        }, {
+            rootMargin: '200px', // se carga un poco antes de aparecer
+            threshold: 0.01
+        });
+
+        lazyImages.forEach(img => observer.observe(img));
+
+        // =========================
+        // Primer batch rápido
+        // =========================
+        loadNextBatch();
+
+    });
+</script>

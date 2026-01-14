@@ -299,7 +299,17 @@ $(document).ready(function () {
             const result = await response.json();
             console.log(result.output);
 
+            // Insertar el HTML generado
             $('#demo_html').html(result.output);
+
+            // =========================
+            // Transformar todas las imágenes: data-src → src
+            // =========================
+            $('#demo_html img[data-src]').each(function() {
+                const $img = $(this);
+                $img.attr('src', $img.data('src'));
+                $img.removeAttr('data-src'); // opcional: limpiar atributo
+            });
 
             // Aquí puedes hacer algo con la respuesta, por ejemplo mostrar un preview
             // alert('Demo generada correctamente');

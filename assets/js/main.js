@@ -1,32 +1,102 @@
-$(function () {
-    const startTime = Date.now();
+document.addEventListener('DOMContentLoaded', function () {
 
-    $(window).on('load', function () {
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(1 - elapsed, 0);
+    const grid = document.querySelector('.grid-proyects');
 
-        setTimeout(() => {
-            $('#video-container-loading').fadeOut(500);
-            $('main#page').fadeIn(100);
-
-            setTimeout(() => {
-                if (typeof Masonry != 'undefined') {
-                    const msnry = new Masonry('.grid-proyects', {
-                        itemSelector: '.grid-item',
-                        columnWidth: '.grid-sizer', // usa grid-sizer como referencia
-                        percentPosition: true,
-                        gutter: 0
-                    });
-
-                    // Recalcular después de que los vídeos carguen
-                    const videos = document.querySelectorAll(".grid-proyects video");
-                    videos.forEach(video => {
-                        video.addEventListener("loadedmetadata", () => {
-                            msnry.layout();
-                        });
-                    });
-                }
-            }, 310);
-        }, remaining);
+    /* =========================
+       Masonry INIT
+    ========================== */
+    window.msnry = new Masonry(grid, {
+        itemSelector: '.grid-item',
+        columnWidth: '.grid-sizer',
+        percentPosition: true,
+        gutter: 0,
+        transitionDuration: '0.25s'
     });
+
+    /* =========================
+       Loader 2 segundos
+    ========================== */
+    setTimeout(() => {
+        window.msnry.layout();
+    }, 3000);
+
+    /* =========================
+       Lazy loading ordenado por DOM (batch secuencial)
+    ========================== */
+    const lazyItems = Array.from(document.querySelectorAll('.lazy-media'));
+    let currentIndex = 0;
+    const batchSize = 5; //
+
+    function loadNextBatch() {
+        const batch = lazyItems.slice(currentIndex, currentIndex + batchSize);
+        let loadedCount = 0;
+
+        if (batch.length === 0) return;
+
+        batch.forEach(el => {
+
+            // Función para marcar elemento cargado
+            const markLoaded = () => {
+                loadedCount++;
+                if (loadedCount === batch.length) {
+                    // Recalcular Masonry solo cuando todos los elementos del batch estén listos
+                    window.msnry.layout();
+
+                    // Siguiente batch
+                    currentIndex += batchSize;
+                    setTimeout(loadNextBatch, 100);
+                }
+            };
+
+            // IMÁGENES
+            if (el.tagName === 'IMG' && !el.src) {
+                el.src = el.dataset.src;
+                el.onload = markLoaded;
+                el.onerror = markLoaded; // evita que se quede colgado si falla
+            }
+
+            // VÍDEOS
+            else if (el.tagName === 'VIDEO') {
+                const source = el.querySelector('source');
+                if (!source.src) {
+                    source.src = source.dataset.src;
+                    el.load();
+                }
+                el.pause(); // pausado hasta entrar en viewport
+                el.addEventListener('loadedmetadata', markLoaded, { once: true });
+                el.addEventListener('error', markLoaded, { once: true });
+            } else {
+                // si ya estaba cargado
+                markLoaded();
+            }
+        });
+    }
+
+    /* =========================
+       Lazy scroll para vídeos
+    ========================== */
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            const el = entry.target;
+            if (el.tagName !== 'VIDEO') return;
+
+            if (entry.isIntersecting) el.play().catch(() => {});
+            else el.pause();
+        });
+    }, { rootMargin: '240px', threshold: 0.01 });
+
+    document.querySelectorAll('.grid-proyects video').forEach(v => observer.observe(v));
+
+    /* =========================
+       Iniciar carga de batches
+    ========================== */
+    loadNextBatch();
+
+    /* =========================
+       Re-layout en resize
+    ========================== */
+    window.addEventListener('resize', () => {
+        window.msnry.layout();
+    });
+
 });

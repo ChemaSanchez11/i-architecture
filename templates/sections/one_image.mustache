@@ -4,7 +4,7 @@
             {{#items}}
                 {{#type}}
                     {{#is_image}}
-                        <img src="{{#print_img}}{{media_url}}{{/print_img}}" class="img-fluid" style="{{css}}"/>
+                        <img data-src="{{#print_img}}{{media_url}}{{/print_img}}" class="img-fluid lazy-section" style="{{css}}"/>
                     {{/is_image}}
                 {{/type}}
             {{/items}}

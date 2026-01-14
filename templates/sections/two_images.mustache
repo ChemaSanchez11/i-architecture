@@ -6,16 +6,15 @@
             <div class="col-md-6 px-0">
                 {{#items}}
                     {{#is_image_left}}
-                        <img src="{{#print_img}}{{media_url}}{{/print_img}}" class="img-fluid left-image" />
+                        <img data-src="{{#print_img}}{{media_url}}{{/print_img}}" class="img-fluid lazy-section left-image" />
                     {{/is_image_left}}
                 {{/items}}
             </div>
-
             <!-- Imagen derecha -->
             <div class="col-md-6 px-0">
                 {{#items}}
                     {{#is_image_right}}
-                        <img src="{{#print_img}}{{media_url}}{{/print_img}}" style="{{css}}" class="img-fluid right-image" />
+                        <img data-src="{{#print_img}}{{media_url}}{{/print_img}}" style="{{css}}" class="img-fluid lazy-section right-image" />
                     {{/is_image_right}}
                 {{/items}}
             </div>

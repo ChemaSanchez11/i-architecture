@@ -19,6 +19,8 @@ class HomeController
         // Agregar archivos de estilo
         $renderer->add_styles(['home.css']);
 
+        $renderer->add_scripts(['main.js']);
+
         $is_manager = false;
         // Agregar archivos de script con parámetros adicionales
         if (!empty($_SESSION['user_id']) && !empty($_SESSION['role']) && $_SESSION['role'] === 'manager') {

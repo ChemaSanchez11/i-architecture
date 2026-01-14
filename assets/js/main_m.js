@@ -4,7 +4,7 @@ $(function () {
     let cropper = null;
     let editCropper = null; // <-- AÑADIR ESTA LÍNEA
     let croppedBlob = null;
-    let msnry = null;
+    let msnry = window.msnry || null;
     let editingItem = null;
     let editFileMemory = null;
 
@@ -225,7 +225,8 @@ $(function () {
         formData.append('id', editingItem.data('id'));
         formData.append('name', projectName);
 
-        const coverId = $('#edit-cover-project').val() || null;
+        const coverId = $('#edit-cover-project').data('id') || null;
+        console.log(coverId);
         if (coverId) formData.append('cover_id', coverId);
 
         // === IMAGEN ===
@@ -245,6 +246,7 @@ $(function () {
         sendEdit(formData);
 
         editFileMemory = null;
+        location.reload();
     });
 
 
@@ -474,27 +476,4 @@ $(function () {
         $('#crop-height').text('0');
         $('#modal-crop').fadeOut(200);
     }
-
-    /* =========================
-       MASONRY
-    ========================== */
-
-    $(window).on('load', function () {
-        setTimeout(() => {
-            if (typeof Masonry !== 'undefined') {
-                msnry = new Masonry('.grid-proyects', {
-                    itemSelector: '.grid-item',
-                    percentPosition: true
-                });
-
-                document.querySelectorAll('.grid-proyects img').forEach(i => {
-                    i.onload = () => msnry.layout();
-                });
-
-                document.querySelectorAll('.grid-proyects video').forEach(v => {
-                    v.addEventListener('loadedmetadata', () => msnry.layout());
-                });
-            }
-        }, 300);
-    });
 });
