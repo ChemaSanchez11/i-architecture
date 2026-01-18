@@ -246,7 +246,6 @@ $(function () {
         sendEdit(formData);
 
         editFileMemory = null;
-        location.reload();
     });
 
 
@@ -258,55 +257,7 @@ $(function () {
             processData: false,
             contentType: false,
             success(response) {
-                // === ACTUALIZAR DOM ===
-                const projectName = $('#edit-project-name').val().trim() || '(Demo)';
-                editingItem.find('.overlay-text').text(projectName);
-
-                // Si hay cropper, actualizar imagen
-                if (editCropper) {
-                    const canvas = editCropper.getCroppedCanvas();
-                    let img = editingItem.find('img');
-                    if (!img.length) {
-                        img = $('<img style="width:100%;">').prependTo(editingItem);
-                    }
-                    img.attr('src', canvas.toDataURL('image/png')).show();
-                    editingItem.find('video').hide();
-                }
-
-                // Si hay video en memoria, actualizar video
-                else if (editFileMemory && editFileMemory.type.startsWith('video/')) {
-                    let video = editingItem.find('video');
-                    if (!video.length) {
-                        video = $(`
-                        <video controls style="width:100%;">
-                            <source>
-                        </video>
-                    `).prependTo(editingItem);
-                    }
-                    video.show();
-                    video.find('source')
-                        .attr('src', URL.createObjectURL(editFileMemory))
-                        .attr('type', editFileMemory.type);
-                    video[0].load();
-                    editingItem.find('img').hide();
-                }
-
-                // Recalcular Masonry
-                if (msnry) msnry.layout();
-
-                // Limpiar cropper y memoria
-                if (editCropper) {
-                    editCropper.destroy();
-                    editCropper = null;
-                }
-                editFileMemory = null;
-                $('#edit-crop-image, #edit-video').hide();
-                $('#edit-project-name').val('');
-                $('#edit-input-image').val('');
-                $('#edit-crop-height').text('0');
-                $('#modal-edit').fadeOut(200);
-
-                editingItem = null;
+                location.reload();
             },
             error() {
                 alert('Error al actualizar');
@@ -462,7 +413,7 @@ $(function () {
             data: formData,
             processData: false,
             contentType: false,
-            success: () => location.reload(),
+            success: () => console.log("ERROR"),
             error: () => alert('Error al guardar')
         });
     }

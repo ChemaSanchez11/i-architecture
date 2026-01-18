@@ -25,7 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
     ========================== */
     const lazyItems = Array.from(document.querySelectorAll('.lazy-media'));
     let currentIndex = 0;
-    const batchSize = 5; //
+
+    // 🔥 SOLO ESTO CAMBIA
+    const batchSize = window.innerWidth < 768 ? 12 : 5;
 
     function loadNextBatch() {
         const batch = lazyItems.slice(currentIndex, currentIndex + batchSize);
@@ -35,14 +37,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         batch.forEach(el => {
 
-            // Función para marcar elemento cargado
             const markLoaded = () => {
                 loadedCount++;
                 if (loadedCount === batch.length) {
-                    // Recalcular Masonry solo cuando todos los elementos del batch estén listos
                     window.msnry.layout();
-
-                    // Siguiente batch
                     currentIndex += batchSize;
                     setTimeout(loadNextBatch, 100);
                 }
@@ -52,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (el.tagName === 'IMG' && !el.src) {
                 el.src = el.dataset.src;
                 el.onload = markLoaded;
-                el.onerror = markLoaded; // evita que se quede colgado si falla
+                el.onerror = markLoaded;
             }
 
             // VÍDEOS
@@ -62,11 +60,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     source.src = source.dataset.src;
                     el.load();
                 }
-                el.pause(); // pausado hasta entrar en viewport
+                el.pause();
                 el.addEventListener('loadedmetadata', markLoaded, { once: true });
                 el.addEventListener('error', markLoaded, { once: true });
             } else {
-                // si ya estaba cargado
                 markLoaded();
             }
         });

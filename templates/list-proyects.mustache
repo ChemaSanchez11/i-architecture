@@ -6,7 +6,7 @@
 
             {{#source_image}}
                 <img
-                        data-src="{{#print_img}}{{source}}{{/print_img}}"
+                        data-src="{{#print_img}}{{source}}?v={{timeupdated}}{{/print_img}}"
                         alt="{{name}}"
                         loading="lazy"
                         class="lazy-media"
@@ -21,7 +21,7 @@
                         preload="metadata"
                         class="lazy-media"
                 >
-                    <source data-src="{{#print_img}}{{source}}{{/print_img}}" type="video/mp4">
+                    <source data-src="{{#print_img}}{{source}}?v={{timeupdated}}{{/print_img}}" type="video/mp4">
                 </video>
             {{/source_video}}
 
