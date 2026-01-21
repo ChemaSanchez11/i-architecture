@@ -36,8 +36,8 @@ $CFG->routes = [
     '/about' => [
         'name' => 'about',
         'visible' => true,
-        'controller' => 'FileController',
-        'method' => 'list',
+        'controller' => 'AboutController',
+        'method' => 'index',
         'has_params' => false,
     ],
     '/login' => [

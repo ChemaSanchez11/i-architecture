@@ -2,6 +2,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const grid = document.querySelector('.grid-proyects');
 
+    // ⛔ Si no existe Masonry o el contenedor, salimos
+    if (typeof Masonry === 'undefined' || !grid) {
+        console.warn('Masonry no está disponible o .grid-proyects no existe');
+        return;
+    }
+
     /* =========================
        Masonry INIT
     ========================== */
@@ -14,19 +20,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* =========================
-       Loader 2 segundos
+       Loader
     ========================== */
     setTimeout(() => {
         window.msnry.layout();
     }, 3000);
 
     /* =========================
-       Lazy loading ordenado por DOM (batch secuencial)
+       Lazy loading ordenado
     ========================== */
     const lazyItems = Array.from(document.querySelectorAll('.lazy-media'));
     let currentIndex = 0;
-
-    // 🔥 SOLO ESTO CAMBIA
     const batchSize = window.innerWidth < 768 ? 12 : 5;
 
     function loadNextBatch() {
@@ -46,15 +50,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             };
 
-            // IMÁGENES
             if (el.tagName === 'IMG' && !el.src) {
                 el.src = el.dataset.src;
                 el.onload = markLoaded;
                 el.onerror = markLoaded;
-            }
-
-            // VÍDEOS
-            else if (el.tagName === 'VIDEO') {
+            } else if (el.tagName === 'VIDEO') {
                 const source = el.querySelector('source');
                 if (!source.src) {
                     source.src = source.dataset.src;
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* =========================
-       Lazy scroll para vídeos
+       Lazy scroll vídeos
     ========================== */
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
@@ -82,16 +82,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }, { rootMargin: '240px', threshold: 0.01 });
 
-    document.querySelectorAll('.grid-proyects video').forEach(v => observer.observe(v));
+    document.querySelectorAll('.grid-proyects video')
+        .forEach(v => observer.observe(v));
 
     /* =========================
-       Iniciar carga de batches
+       Start
     ========================== */
     loadNextBatch();
 
-    /* =========================
-       Re-layout en resize
-    ========================== */
     window.addEventListener('resize', () => {
         window.msnry.layout();
     });
