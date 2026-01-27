@@ -14,7 +14,7 @@ class AboutController
         $renderer = new Renderer();
 
         // Establecer el título de la página
-        $renderer->set_title('Inicio');
+        $renderer->set_title('About');
 
         // Agregar archivos de estilo
         $renderer->add_styles(['about.css']);
@@ -29,19 +29,16 @@ class AboutController
             'routes' => array_values($CFG->routes),
         ]);
 
-        $proyects = $DB->get_records('SELECT id, name, source, source_type, cover_project_id, timeupdated FROM proyects WHERE active = 1');
+        $config = $DB->get_record('SELECT value FROM config WHERE `name` = "img_about"');
 
-        foreach ($proyects as &$proyect) {
-            $proyect->source_image = true;
-            $proyect->source_video = false;
-            if ($proyect->source_type === 'video') {
-                $proyect->source_image = false;
-                $proyect->source_video = true;
-            }
+        $is_manager = false;
+        // Agregar archivos de script con parámetros adicionales
+        if (!empty($_SESSION['user_id']) && !empty($_SESSION['role']) && $_SESSION['role'] === 'manager') {
+            $is_manager = true;
         }
 
         // Renderizar el HTML completo (incluye head, nav y body)
-        $renderer->render_html('about', ['proyects' => $proyects], false);
+        $renderer->render_html('about', ['img' => $config->value, 'is_manager' => $is_manager], false);
 
     }
 }

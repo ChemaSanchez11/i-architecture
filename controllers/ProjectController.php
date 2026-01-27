@@ -91,6 +91,8 @@ class ProjectController
             'sections' => $sections,
         ];
 
+        $renderer->set_loading('images/proyectos.gif', 'background: white; padding: 100%;');
+
         // 5️⃣ Renderizar plantilla Mustache
         $renderer->render_html('project', $context);
 

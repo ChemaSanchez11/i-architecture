@@ -15,10 +15,18 @@ class Renderer
     private ?string $head = null;
     private ?string $nav = null;
     private ?string $title = null;
+    private ?string $loading = 'images/loading.gif';
+    private ?string $loading_style = 'position: absolute; width: 100%;';
 
     public function __construct()
     {
         $this->initialize_mustache();
+    }
+
+    public function set_loading(string $loading, $loading_style = 'position: absolute; width: 100%;'): void
+    {
+        $this->loading = $loading;
+        $this->loading_style = $loading_style;
     }
 
     public function set_title(string $title): void
@@ -132,6 +140,8 @@ class Renderer
         $body =  $this->render_template($template, $params);
 
         echo $this->render_template('core/html', [
+            'loading' => $this->loading,
+            'loading_style' => $this->loading_style,
             'head' => $this->head,
             'nav' => $this->nav,
             'body' => $body,

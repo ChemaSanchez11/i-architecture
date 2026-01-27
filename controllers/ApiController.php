@@ -27,7 +27,8 @@ class ApiController
         exit();
     }
 
-    public function new_project() {
+    public function new_project()
+    {
 
         global $DB;
 
@@ -47,7 +48,7 @@ class ApiController
 
         if (!empty($_FILES)) {
 
-            $DIR    = __DIR__ . "/../assets/images/proyects/";
+            $DIR = __DIR__ . "/../assets/images/proyects/";
             $DB_DIR = "proyects/";
 
             if (!is_dir($DIR)) {
@@ -69,7 +70,7 @@ class ApiController
             }
 
             // Nombre final
-            $newName =  uniqid('p-', ) . ".$extension";
+            $newName = uniqid('p-',) . ".$extension";
 
             // Ruta destino
             $targetPath = $DIR . $newName;
@@ -96,7 +97,8 @@ class ApiController
         $this->send_response($response);
     }
 
-    public function update_project() {
+    public function update_project()
+    {
 
         global $DB;
 
@@ -118,7 +120,7 @@ class ApiController
 
         if (!empty($_FILES)) {
 
-            $DIR    = __DIR__ . "/../assets/images/proyects/";
+            $DIR = __DIR__ . "/../assets/images/proyects/";
             $DB_DIR = "proyects/";
 
             if (!is_dir($DIR)) {
@@ -140,7 +142,7 @@ class ApiController
             }
 
             // Nombre final
-            $newName =  "proyect-$id.$extension";
+            $newName = "proyect-$id.$extension";
 
             // Ruta destino
             $targetPath = $DIR . $newName;
@@ -179,7 +181,8 @@ class ApiController
         $this->send_response($response);
     }
 
-    public function edit_project() {
+    public function edit_project()
+    {
 
         global $DB;
 
@@ -196,7 +199,7 @@ class ApiController
 
         if (!empty($_FILES)) {
 
-            $DIR    = __DIR__ . "/../assets/images/proyects/p-$id/";
+            $DIR = __DIR__ . "/../assets/images/proyects/p-$id/";
             $DB_DIR = "proyects/p-$id/";
 
             if (!is_dir($DIR)) {
@@ -242,7 +245,68 @@ class ApiController
         $this->send_response($response);
     }
 
-    public function move_section() {
+    public function update_about()
+    {
+
+        global $DB;
+
+        if (empty($_FILES)) {
+            $response = [
+                'success' => false,
+                'output' => 'Faltan parametros'
+            ];
+            $this->send_response($response, 400);
+        }
+
+        $response = [
+            'success' => false
+        ];
+
+        if (!empty($_FILES)) {
+
+            $DIR = __DIR__ . "/../assets/images/";
+
+            if (!is_dir($DIR)) {
+                mkdir($DIR, 0777, true);
+            }
+
+            // Obtener el archivo (primer input)
+            $file = reset($_FILES);
+
+            // Extensión original
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+            // MIME type reportado por el navegador
+            $mimeType = $file['type'];
+
+            $type = 'image';
+            if (str_starts_with($mimeType, 'video/')) {
+                $type = 'video';
+            }
+
+            // Nombre final
+            $newName = "about.png";
+
+            // Ruta destino
+            $targetPath = $DIR . $newName;
+
+            $time = time();
+
+            // Mover archivo
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                $DB->execute('UPDATE `config` SET `value` = ? WHERE `name` = "img_about"', [$newName]);
+
+                $response = [
+                    'success' => true
+                ];
+            }
+        }
+
+        $this->send_response($response);
+    }
+
+    public function move_section()
+    {
 
         global $DB;
 
@@ -263,9 +327,9 @@ class ApiController
             $section = $DB->get_record('SELECT * FROM project_sections WHERE id = ?', [$value]);
 
             if ($key === 'up') {
-                $order = ((int) $section->order) - 1;
+                $order = ((int)$section->order) - 1;
             } else {
-                $order = ((int) $section->order) + 1;
+                $order = ((int)$section->order) + 1;
             }
 
 
@@ -282,7 +346,8 @@ class ApiController
         $this->send_response($response);
     }
 
-    public function get_section() {
+    public function get_section()
+    {
 
         global $DB;
 
@@ -431,7 +496,8 @@ class ApiController
         $this->send_response($response);
     }
 
-    function clean_css_value($value) {
+    function clean_css_value($value)
+    {
         // Quitar ';'
         $value = rtrim($value, ';');
 
@@ -444,7 +510,8 @@ class ApiController
         return $value;
     }
 
-    public function new_section() {
+    public function new_section()
+    {
 
         global $DB;
 
@@ -506,7 +573,7 @@ class ApiController
         }
 
         foreach ($_FILES as $key => $value) {
-            if(!empty($value['tmp_name'])) {
+            if (!empty($value['tmp_name'])) {
 
                 // Extensión del archivo
                 $ext = strtolower(pathinfo($value['name'], PATHINFO_EXTENSION));
@@ -521,9 +588,9 @@ class ApiController
 
                     // Ruta accesible para guardarla en BD
                     $files[$key] = [
-                        'filename'   => $uniqueName,
-                        'path'       => $destination_db,
-                        'full_path'  => $destination
+                        'filename' => $uniqueName,
+                        'path' => $destination_db,
+                        'full_path' => $destination
                     ];
 
                 }
@@ -554,7 +621,7 @@ class ApiController
 
         if ($this->params['layout'] === 'text_left_image_right') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['align-self'] = "center !important;";
             }
 
@@ -610,7 +677,7 @@ class ApiController
 
         } else if ($this->params['layout'] === 'image_left_text_right') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['align-self'] = "center !important;";
             }
 
@@ -665,7 +732,7 @@ class ApiController
             }
 
         } else if ($this->params['layout'] === 'text_left_video_right') {
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['align-self'] = "center !important;";
             }
 
@@ -718,7 +785,7 @@ class ApiController
                 ");
             }
         } else if ($this->params['layout'] === 'video_left_text_right') {
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['align-self'] = "center !important;";
             }
 
@@ -772,7 +839,7 @@ class ApiController
 
         } else if ($this->params['layout'] === 'two_images_left_large_right_small') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['align-self'] = "center !important;";
             }
 
@@ -828,7 +895,7 @@ class ApiController
 
             if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css['width'] = "100% !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'align-right') {
                 $css['display'] = 'block';
                 $css['margin-left'] = 'auto !important;';
             }
@@ -860,9 +927,9 @@ class ApiController
             }
         } else if ($this->params['layout'] === 'two_images') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css['width'] = "100% !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'full-width-height') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'full-width-height') {
                 $css['width'] = "100% !important;";
                 $css['height'] = "100% !important;";
             }
@@ -916,15 +983,15 @@ class ApiController
                 ");
             }
         } else if ($this->params['layout'] === 'one_video') {
-            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css['width'] = "100% !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'full-width-height') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'full-width-height') {
                 $css['width'] = "100% !important;";
                 $css['height'] = "100% !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css['margin-left'] = "auto !important;";
                 $css['margin-right'] = "auto !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'align-right') {
                 $css['margin-left'] = "auto !important;";
             }
 
@@ -960,7 +1027,8 @@ class ApiController
         $this->send_response($response);
     }
 
-    public function generate_section_demo() {
+    public function generate_section_demo()
+    {
 
         global $DB;
 
@@ -979,7 +1047,7 @@ class ApiController
         $files = [];
 
         foreach ($_FILES as $key => $value) {
-            if(!empty($value['tmp_name'])) {
+            if (!empty($value['tmp_name'])) {
 
                 // Convertir la imagen a Base64 para que sea accesible desde HTML
                 $image_base64 = '';
@@ -988,10 +1056,10 @@ class ApiController
                     $ext = strtolower(pathinfo($value['name'], PATHINFO_EXTENSION));
 
                     // Extensiones de imagen
-                    $image_exts = ['jpg','jpeg','png','gif','webp','bmp','svg'];
+                    $image_exts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
 
                     // Extensiones de vídeo
-                    $video_exts = ['mp4','webm','ogg'];
+                    $video_exts = ['mp4', 'webm', 'ogg'];
 
                     if (in_array($ext, $image_exts)) {
                         // Imagen
@@ -1021,9 +1089,9 @@ class ApiController
             $margin_top = $this->params['margin-top'];
 
             if (is_numeric($margin_top)) {
-                $css .= 'margin-top: '.$margin_top.'rem !important;';
+                $css .= 'margin-top: ' . $margin_top . 'rem !important;';
             } else {
-                $css .= 'margin-top: '.$margin_top.' !important;';
+                $css .= 'margin-top: ' . $margin_top . ' !important;';
             }
 
         }
@@ -1031,21 +1099,21 @@ class ApiController
         if (!empty($this->params['margin-bottom'])) {
             $margin_bottom = $this->params['margin-bottom'];
             if (is_numeric($margin_bottom)) {
-                $css .= 'margin-bottom: '.$margin_bottom.'rem !important;';
+                $css .= 'margin-bottom: ' . $margin_bottom . 'rem !important;';
             } else {
-                $css .= 'margin-bottom: '.$margin_bottom.' !important;';
+                $css .= 'margin-bottom: ' . $margin_bottom . ' !important;';
             }
         }
 
         if ($this->params['layout'] === 'text_left_image_right') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css .= "align-self: center !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'text',
@@ -1064,13 +1132,13 @@ class ApiController
             $html = $renderer->render_template('sections/text_left_image_right', $temp_data);
         } else if ($this->params['layout'] === 'image_left_text_right') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css .= "align-self: center !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'image',
@@ -1089,13 +1157,13 @@ class ApiController
             $html = $renderer->render_template('sections/image_left_text_right', $temp_data);
         } else if ($this->params['layout'] === 'image_left_text_right') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css .= "align-self: center !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'image',
@@ -1114,13 +1182,13 @@ class ApiController
             $html = $renderer->render_template('sections/image_left_text_right', $temp_data);
         } else if ($this->params['layout'] === 'text_left_video_right') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css .= "align-self: center !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'text',
@@ -1139,13 +1207,13 @@ class ApiController
             $html = $renderer->render_template('sections/text_left_video_right', $temp_data);
         } else if ($this->params['layout'] === 'video_left_text_right') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css .= "align-self: center !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'video',
@@ -1164,13 +1232,13 @@ class ApiController
             $html = $renderer->render_template('sections/video_left_text_right', $temp_data);
         } else if ($this->params['layout'] === 'two_images_left_large_right_small') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css .= "align-self: center !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'image',
@@ -1189,15 +1257,15 @@ class ApiController
             $html = $renderer->render_template('sections/two_images_left_large_right_small', $temp_data);
         } else if ($this->params['layout'] === 'one_image') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css .= "width: 100% !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'align-right') {
                 $css .= "display: block; margin-left: auto !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'image',
@@ -1211,15 +1279,15 @@ class ApiController
             $html = $renderer->render_template('sections/one_image', $temp_data);
         } else if ($this->params['layout'] === 'two_images') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css .= "width: 100% !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'full-width-height') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'full-width-height') {
                 $css .= "width: 100% !important; height: 100% !important";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'image',
@@ -1231,7 +1299,7 @@ class ApiController
                         'type' => 'image',
                         'is_image_right' => true,
                         'css' => $css,
-                        'media_url' => $files['mn-image-right']['base64']  ?? $this->params['hdn-image-right']
+                        'media_url' => $files['mn-image-right']['base64'] ?? $this->params['hdn-image-right']
                     ]
                 ]
             ];
@@ -1239,20 +1307,20 @@ class ApiController
             $html = $renderer->render_template('sections/two_images', $temp_data);
         } else if ($this->params['layout'] === 'one_video') {
 
-            if(!empty($this->params['style']) && $this->params['style'] === 'full-width') {
+            if (!empty($this->params['style']) && $this->params['style'] === 'full-width') {
                 $css .= "width: 100% !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'align-right') {
                 $css .= "display: block; margin-left: auto !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'center') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'center') {
                 $css .= "margin-left: auto !important;";
                 $css .= "margin-right: auto !important;";
-            } else if(!empty($this->params['style']) && $this->params['style'] === 'align-right') {
+            } else if (!empty($this->params['style']) && $this->params['style'] === 'align-right') {
                 $css .= "margin-left: auto !important;";
             }
 
             $temp_data = [
                 'id' => 'temp',
-                's_css' => !empty($this->params['background']) ? ('background: '. $this->params['background'] . ' !important;') : '',
+                's_css' => !empty($this->params['background']) ? ('background: ' . $this->params['background'] . ' !important;') : '',
                 'items' => [
                     [
                         'type' => 'video',
@@ -1272,7 +1340,8 @@ class ApiController
         $this->send_response($response);
     }
 
-    public function delete_section() {
+    public function delete_section()
+    {
         global $DB;
 
         if (empty($this->params['project'])) {
