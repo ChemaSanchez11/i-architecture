@@ -272,33 +272,42 @@ class ApiController
 
             // Obtener el archivo (primer input)
             $file = reset($_FILES);
-
-            // Extensión original
             $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
 
-            // MIME type reportado por el navegador
-            $mimeType = $file['type'];
+            if ($this->params['name'] === 'img_about_footer') {
+                // Nombre final
+                $newName = "about_footer.$extension";
 
-            $type = 'image';
-            if (str_starts_with($mimeType, 'video/')) {
-                $type = 'video';
-            }
+                // Ruta destino
+                $targetPath = $DIR . $newName;
 
-            // Nombre final
-            $newName = "about.png";
+                $time = time();
 
-            // Ruta destino
-            $targetPath = $DIR . $newName;
+                // Mover archivo
+                if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                    $DB->execute('UPDATE `config` SET `value` = ? WHERE `name` = "img_about_footer"', [$newName]);
 
-            $time = time();
+                    $response = [
+                        'success' => true
+                    ];
+                }
+            } else {
+                // Nombre final
+                $newName = "about.$extension";
 
-            // Mover archivo
-            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-                $DB->execute('UPDATE `config` SET `value` = ? WHERE `name` = "img_about"', [$newName]);
+                // Ruta destino
+                $targetPath = $DIR . $newName;
 
-                $response = [
-                    'success' => true
-                ];
+                $time = time();
+
+                // Mover archivo
+                if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                    $DB->execute('UPDATE `config` SET `value` = ? WHERE `name` = "img_about"', [$newName]);
+
+                    $response = [
+                        'success' => true
+                    ];
+                }
             }
         }
 

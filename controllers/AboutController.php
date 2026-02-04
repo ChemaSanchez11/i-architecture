@@ -30,6 +30,7 @@ class AboutController
         ]);
 
         $config = $DB->get_record('SELECT value FROM config WHERE `name` = "img_about"');
+        $config_footer = $DB->get_record('SELECT value FROM config WHERE `name` = "img_about_footer"');
 
         $is_manager = false;
         // Agregar archivos de script con parámetros adicionales
@@ -38,7 +39,11 @@ class AboutController
         }
 
         // Renderizar el HTML completo (incluye head, nav y body)
-        $renderer->render_html('about', ['img' => $config->value, 'is_manager' => $is_manager], false);
+        $renderer->render_html('about', [
+            'img' => $config->value,
+            'img_footer' => $config_footer->value,
+            'is_manager' => $is_manager
+        ], false);
 
     }
 }

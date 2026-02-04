@@ -15,7 +15,8 @@
 }
 
 .bg-brown {
-    background-color: #3f2212; /* marrón similar al de la imagen */
+    background-size: cover;
+    background-position-y: center;
 }
 
 .text-contact {
