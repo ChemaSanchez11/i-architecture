@@ -23,7 +23,12 @@ class Router {
         }
 
         $path = parse_url($request_uri, PHP_URL_PATH);
-        $route = ltrim(str_replace($this->base_path, '', $path), '/');
+
+        if ($this->base_path !== '/') {
+            $route = ltrim(str_replace($this->base_path, '', $path), '/');
+        } else {
+            $route = substr($path, 1);
+        }
 
         if (empty($route)) {
             $route = 'home';

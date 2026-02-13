@@ -250,7 +250,7 @@ class ApiController
 
         global $DB;
 
-        if (empty($_FILES)) {
+        if (empty($this->params['name'])) {
             $response = [
                 'success' => false,
                 'output' => 'Faltan parametros'
@@ -309,6 +309,15 @@ class ApiController
                     ];
                 }
             }
+        } else if ($this->params['name'] === 'cover_text') {
+            $result = $DB->execute('UPDATE `config` SET `value` = ? WHERE `name` = "cover_text"', [$this->params['value']]);
+
+            $response = [
+                'success' => true
+            ];
+
+            var_dump($result);
+            var_dump("LLEGA");
         }
 
         $this->send_response($response);

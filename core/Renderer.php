@@ -105,7 +105,10 @@ class Renderer
 
     public function render_head(): void
     {
+        global $CFG;
+
         $this->head = $this->render_template('core/head', [
+            'base' => $CFG->proyect,
             'title' => $this->title ?? 'Untitled',
             'styles' => $this->styles,
             'js' => $this->scripts,

@@ -6,15 +6,22 @@ use core\EnvCache;
 require_once(__DIR__ . '/core/DB.php');
 require_once(__DIR__ . '/core/EnvCache.php');
 
+
 unset($CFG, $DB);
 global $CFG, $DB;
+
+$env_file = __DIR__ . '/.env';
+$cache_file = __DIR__ . '/.env.cache.php';
+
+$env = new EnvCache(__DIR__ . '/.env', __DIR__ . '/storage/cache/env.php');
+$env->load();
 
 $CFG = new stdClass();
 
 session_name('i_architecture_session');
 session_start();
 
-$CFG->proyect = 'i-architecture';
+$CFG->proyect = $_ENV['ROOT'] ?? '/i-architecture/';
 
 $loguut_visible = !empty($_SESSION['user_id']) && !empty($_SESSION['role']) && $_SESSION['role'] === 'manager';
 
@@ -53,12 +60,6 @@ $CFG->routes = [
         'has_params' => false
     ],
 ];
-
-$env_file = __DIR__ . '/.env';
-$cache_file = __DIR__ . '/.env.cache.php';
-
-$env = new EnvCache(__DIR__ . '/.env', __DIR__ . '/storage/cache/env.php');
-$env->load();
 
 $DB = new DB(
     $_ENV['DB_HOST'],

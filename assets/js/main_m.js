@@ -251,7 +251,7 @@ $(function () {
 
     function sendEdit(formData) {
         $.ajax({
-            url: '/i-architecture/api/update_project',
+            url: window.base_url + 'api/update_project',
             method: 'POST',
             data: formData,
             processData: false,
@@ -408,7 +408,7 @@ $(function () {
 
     function sendNew(formData) {
         $.ajax({
-            url: '/i-architecture/api/new_project',
+            url: window.base_url + 'api/new_project',
             method: 'POST',
             data: formData,
             processData: false,
