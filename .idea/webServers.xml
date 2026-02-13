@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="6352c8f5-0724-425f-8f09-ff2bf7854c14" name="ftp.i-architecture.com" url="http://ftp.i-architecture.com">
+        <fileTransfer rootFolder="/public_html/website_efe871a1" host="ftp.i-architecture.com" port="21">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
